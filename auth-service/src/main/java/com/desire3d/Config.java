@@ -1,0 +1,39 @@
+
+package com.desire3d;
+
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+//import org.springframework.data.redis.connection.RedisConnectionFactory;
+//import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+//import org.springframework.data.redis.core.RedisTemplate;
+//import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.web.client.RestTemplate;
+
+import com.desire3d.channel.UserCreationChannel;
+
+@RefreshScope
+@Configuration
+@EnableEurekaClient
+@EnableAspectJAutoProxy
+@ComponentScan
+@EnableBinding(UserCreationChannel.class)
+public class Config {
+
+	@LoadBalanced
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	/**
+	 * Set config properties from properties
+	 * 
+	 */
+
+}

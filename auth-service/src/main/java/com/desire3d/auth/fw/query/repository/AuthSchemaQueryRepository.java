@@ -1,0 +1,16 @@
+package com.desire3d.auth.fw.query.repository;
+
+import java.util.List;
+
+import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.handler.RepositoryExceptionHandler;
+import com.desire3d.auth.model.transactions.AuthSchema;
+
+public interface AuthSchemaQueryRepository {
+
+	public AuthSchema findAuthSchemaByLoginIdAndIsActive(String loginId, Boolean isActive) throws DataNotFoundException;
+
+	@RepositoryExceptionHandler(exception = "com.desire3d.auto.exceptions.DataNotFoundException", message = "Data not found exception %s")
+	public List<AuthSchema> findByLoginIdAndIsActive(String loginId, boolean isActive) throws DataNotFoundException;
+
+}
