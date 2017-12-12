@@ -33,13 +33,14 @@ public class UserCreatedEventListener extends HelperDomainService {
 	@StreamListener(UserCreationChannel.USER_CREATION_INPUT)
 	public void listen(Message<UserCreatedEvent> message) {
 		logger.info("Message '{}' received ", message);
-		UserCreatedEvent event = message.getPayload();
+		final UserCreatedEvent event = message.getPayload();
 		try {
 			String tokenId = (String) message.getHeaders().get("tokenId");
 			LoginInfoHelperBean loginInfoHelperBean = deserializeToken(tokenId);
 			UserLoginCreatedEvent userLoginCreatedEvent = loginDomainService.createUserLogin(event, loginInfoHelperBean);
+			System.err.println("userLoginCreatedEvent : " + userLoginCreatedEvent);
 			logger.info("Login Created Successfully for event '{}'", event);
-			publisher.publish(userLoginCreatedEvent);
+			publisher.publish(userLoginCreatedEvent, tokenId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.info("Login Creation Failed for event '{}'", event);

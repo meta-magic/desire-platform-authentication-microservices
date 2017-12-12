@@ -44,7 +44,7 @@ public final class LoginDomainService {
 		UserSchema userSchema = createUserSchema(event, loginInfoHelperBean);
 		createAuthSchema(event, userSchema, loginInfoHelperBean);
 		String password = createPasswordSchema(event, userSchema, loginInfoHelperBean);
-		return new UserLoginCreatedEvent(event.getLoginId(), password, event.getFirstName(), event.getLastName(), event.getEmailId(), event.getPhoneNumber());
+		return new UserLoginCreatedEvent(event.getLoginId(), userSchema.getUserUUID(), password, event.getFirstName(), event.getLastName(), event.getEmailId(), event.getPhoneNumber());
 	}
 
 	/**

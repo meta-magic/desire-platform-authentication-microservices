@@ -24,8 +24,8 @@ public class UserLoginCreatedEventPublisher {
 	@Autowired
 	private UserCreationChannel userCreationChannel;
 
-	public void publish(final UserLoginCreatedEvent event) {
-		Message<UserLoginCreatedEvent> message = MessageBuilder.withPayload(event).build();
+	public void publish(final UserLoginCreatedEvent event, final String tokenId) {
+		Message<UserLoginCreatedEvent> message = MessageBuilder.withPayload(event).setHeader("tokenId", tokenId).build();
 		logger.info("Publishing message '{}' with payload type '{}' ", message, UserCreatedEvent.class);
 		boolean status = userCreationChannel.userCreationOutputChannel().send(message);
 		logger.info("Published message '{}' with status '{}' ", message, status);

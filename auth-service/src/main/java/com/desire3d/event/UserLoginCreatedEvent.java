@@ -10,6 +10,8 @@ public final class UserLoginCreatedEvent implements IntegrationEvent {
 
 	private String loginId;
 
+	private String userId;
+
 	private String password;
 
 	private String firstName;
@@ -24,10 +26,11 @@ public final class UserLoginCreatedEvent implements IntegrationEvent {
 		super();
 	}
 
-	public UserLoginCreatedEvent(final String loginId, final String password, final String firstName, final String lastName, final String emailId,
-			final String phoneNumber) {
+	public UserLoginCreatedEvent(final String loginId, final String userId, final String password, final String firstName, final String lastName,
+			final String emailId, final String phoneNumber) {
 		super();
 		this.loginId = loginId;
+		this.userId = userId;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -37,6 +40,14 @@ public final class UserLoginCreatedEvent implements IntegrationEvent {
 
 	public String getLoginId() {
 		return loginId;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getPassword() {
@@ -61,7 +72,7 @@ public final class UserLoginCreatedEvent implements IntegrationEvent {
 
 	@Override
 	public String toString() {
-		return "UserLoginCreatedEvent [loginId=" + loginId + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId="
-				+ emailId + ", phoneNumber=" + phoneNumber + "]";
+		return "UserLoginCreatedEvent [loginId=" + loginId + ", userId=" + userId + ", password=" + password + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + "]";
 	}
 }

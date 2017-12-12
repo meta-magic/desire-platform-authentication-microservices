@@ -16,6 +16,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class TokenServiceImpl implements TokenService {
+	
 	@Value("${token.key}")
 	private String tokenKey = null;
 
