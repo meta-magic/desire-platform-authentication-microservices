@@ -9,6 +9,7 @@ import javax.jdo.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.model.transactions.AppSession;
@@ -44,7 +45,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 	}
 
 	@Override
-	public AppSession update(AppSession appSession) {
+	public AppSession update(AppSession appSession) throws PersistenceException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
@@ -69,6 +70,8 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			throw new PersistenceException(e.getMessage());
+
 		} finally {
 			// pm.close();
 		}
@@ -76,8 +79,22 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 	}
 
 	@Override
-	public AppSession save(AppSession appSession) {
-		return (pmf.getPersistenceManager().makePersistent(appSession));
+	public AppSession save(AppSession appSession) throws PersistenceException {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			appSession = pm.makePersistent(appSession);
+			tx.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			throw new PersistenceException(e.getMessage());
+		} finally {
+			pm.close();
+		}
+		return appSession;
 	}
-
 }

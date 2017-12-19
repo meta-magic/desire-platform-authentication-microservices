@@ -19,7 +19,8 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public PasswordSchema findPasswordSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException {
+	public PasswordSchema findPasswordSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive)
+			throws DataNotFoundException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Query query = pm.newQuery(PasswordSchema.class);
 		query.setFilter("this.userUUID==:userUUID && isActive==:true");
@@ -36,13 +37,16 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<PasswordSchema> findByIsActive(Boolean isActive) {
+	public List<PasswordSchema> findByIsActive(Boolean isActive) throws DataNotFoundException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Query query = pm.newQuery(PasswordSchema.class);
 		query.setFilter("isActive==:true");
 		List<PasswordSchema> schemas = (List<PasswordSchema>) query.execute(true);
-		return schemas;
+		if (schemas.isEmpty()) {
+			throw new DataNotFoundException("Data not found exception %s");
+		} else {
+			return schemas;
 
+		}
 	}
-
 }

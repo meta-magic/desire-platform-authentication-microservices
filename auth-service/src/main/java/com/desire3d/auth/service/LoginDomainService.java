@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
+import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AuthSchemaCommandRepository;
 import com.desire3d.auth.fw.command.repository.PasswordSchemaCommandRepository;
 import com.desire3d.auth.fw.command.repository.UserSchemaCommandRepository;
@@ -52,8 +53,9 @@ public final class LoginDomainService {
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @return {@link UserSchema}
+	 * @throws PersistenceException 
 	 * */
-	private UserSchema createUserSchema(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) {
+	private UserSchema createUserSchema(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceException {
 		UserSchema userSchema = new UserSchema();
 		userSchema.setFirstTimeLogin(true);
 		userSchema.setUserType("1");
@@ -67,8 +69,9 @@ public final class LoginDomainService {
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @return saved {@link AuthSchema} 
+	 * @throws PersistenceException 
 	 * */
-	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean) {
+	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceException {
 		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getEmailId(), userSchema.getUserUUID(), event.getPersonUUID());
 		authSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		return authSchemaCommandRepository.save(authSchema);
@@ -80,6 +83,7 @@ public final class LoginDomainService {
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @param userSchema 
 	 * @return created password
+	 * @throws Exception 
 	 * */
 	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean)
 			throws Exception {
@@ -95,6 +99,7 @@ public final class LoginDomainService {
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @return hashed password 
+	 * @throws Exception 
 	 * */
 	public String createPasswordHash(final String password) throws Exception {
 		return HashingAlgorithms.getInstance().createHash(password, HashingAlgorithms.MD5);

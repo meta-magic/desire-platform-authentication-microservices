@@ -21,7 +21,8 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AuthSchema findAuthSchemaByLoginIdAndIsActive(String loginId, Boolean isActive) throws DataNotFoundException {
+	public AuthSchema findAuthSchemaByLoginIdAndIsActive(String loginId, Boolean isActive)
+			throws DataNotFoundException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Query query = pm.newQuery(AuthSchema.class);
 		query.setFilter("this.loginId==:loginId && this.isActive==:isActive");
@@ -39,7 +40,10 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 		Query query = pm.newQuery(AuthSchema.class);
 		query.setFilter("this.loginId==:loginId && this.isActive==:isActive");
 		List<AuthSchema> schemas = (List<AuthSchema>) query.execute(loginId, true);
-		return schemas;
+		if (schemas.isEmpty()) {
+			throw new DataNotFoundException("Data not found exception %s");
+		} else {
+			return schemas;
+		}
 	}
-
 }

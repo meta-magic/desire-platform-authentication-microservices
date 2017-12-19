@@ -10,6 +10,7 @@ import com.desire3d.auth.dto.AuthenticateResponse;
 import com.desire3d.auth.dto.LoginResponseDto;
 import com.desire3d.auth.exceptions.BusinessServiceException;
 import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginFailureCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginHistoryCommandRepository;
@@ -83,12 +84,14 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			AppSession appSession = this.createAppSessionId(authResp);
 			// CREATE LOGIN HISTORY
 			loginHistory(authResp, appSession);
-			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getLoginUUID(),
-					authResp.getAuthSchema().getUserUUID(), authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId());
+			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(),
+					authResp.getAuthSchema().getLoginUUID(), authResp.getAuthSchema().getUserUUID(),
+					authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId());
 
-			LoginResponseDto loginResponse = new LoginResponseDto(appSession.getAppSessionId(), authResp.getUserSchema().isFirstTimeLogin(),
-					authResp.getUserSchema().getAccountBlocked(), authResp.getUserSchema().isAccountExpired(), authResp.getUserSchema().isChangePassword(),
-					tokenid, null);
+			LoginResponseDto loginResponse = new LoginResponseDto(appSession.getAppSessionId(),
+					authResp.getUserSchema().isFirstTimeLogin(), authResp.getUserSchema().getAccountBlocked(),
+					authResp.getUserSchema().isAccountExpired(), authResp.getUserSchema().isChangePassword(), tokenid,
+					null);
 
 			System.out.println("loginRespose********" + loginResponse);
 			return loginResponse;
@@ -98,15 +101,18 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		}
 	}
 
-	//AppSessionId
-	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession) {
-		LoginHistory loginHistory = new LoginHistory(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getUserUUID(), appSession.getAppSessionId(),
-				1, 1, "127.0.0.1", "chrome", "", 0.0, 0.0);
+	// AppSessionId
+	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession)
+			throws PersistenceException {
+		LoginHistory loginHistory = new LoginHistory(authResp.getAuthSchema().getMteid(),
+				authResp.getAuthSchema().getUserUUID(), appSession.getAppSessionId(), 1, 1, "127.0.0.1", "chrome", "",
+				0.0, 0.0);
 		// SET HELPER CLASS DATA
 		loginHistory.setIsActive(true);
 		if (authResp.getUserSchema().getAuditDetails() != null) {
-			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()),
-					authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()));
+			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()), authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()));
 			loginHistory.setAuditDetails(auditDetails);
 		}
 		loginHistoryRepo.save(loginHistory);
@@ -114,8 +120,11 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		return loginHistory;
 	}
 
-	private LoginFailure loginFailure(String loginId, String errorId) {
+	private LoginFailure loginFailure(String loginId, String errorId) throws PersistenceException {
 		LoginFailure loginFailure = new LoginFailure(loginId, "", "", errorId, "127.0.0.1", "chrome", "", 0.0, 0.0);
+		AuditDetails auditDetails = new AuditDetails("", new Date(System.currentTimeMillis()), "",//Added 
+				new Date(System.currentTimeMillis()));
+		loginFailure.setAuditDetails(auditDetails);
 
 		loginFailureRepo.save(loginFailure);
 
@@ -123,13 +132,14 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 	}
 
-	private AppSession createAppSessionId(AuthenticateResponse authResp) {
+	private AppSession createAppSessionId(AuthenticateResponse authResp) throws PersistenceException {
 		AppSession appSession = new AppSession();
 		appSession.setAppData("AppData");
 		appSession.setIsActive(true);
 		if (authResp.getUserSchema().getAuditDetails() != null) {
-			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()),
-					authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()));
+			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()), authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()));
 			appSession.setAuditDetails(auditDetails);
 		}
 		appSessionRepo.save(appSession);
@@ -147,10 +157,12 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			if (auth != null && auth.getUserUUID() != null) {
 				UserSchema user = userQRepo.findUserSchemaByUserUUIDAndIsActive(auth.getUserUUID(), true);
 				if (user.getAccountBlocked().equals(1) || user.isAccountExpired()) {
-					throw new BusinessServiceException("Account is blocked or Expired please contact admin", "valid.loginid.accountblockedorexpired");
+					throw new BusinessServiceException("Account is blocked or Expired please contact admin",
+							"valid.loginid.accountblockedorexpired");
 				}
 
-				PasswordSchema passwordSchema = passwordRepo.findPasswordSchemaByUserUUIDAndIsActive(auth.getUserUUID(), true);
+				PasswordSchema passwordSchema = passwordRepo.findPasswordSchemaByUserUUIDAndIsActive(auth.getUserUUID(),
+						true);
 
 				Iterable<PasswordSchema> passwordSchemas = passwordRepo.findByIsActive(true);
 				for (PasswordSchema passwordSchema2 : passwordSchemas) {
@@ -159,7 +171,8 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 					}
 				}
 
-				if ((passwordSchema == null && passwordSchema.getPasswordHash() == null) || !passwordSchema.getPasswordHash().trim().equals(password.trim())) {
+				if ((passwordSchema == null && passwordSchema.getPasswordHash() == null)
+						|| !passwordSchema.getPasswordHash().trim().equals(password.trim())) {
 					throw new BusinessServiceException("Invalid login-id or password", "invalid.user.credentials");
 				} else {
 					AuthenticateResponse authResp = new AuthenticateResponse(auth, user, passwordSchema);

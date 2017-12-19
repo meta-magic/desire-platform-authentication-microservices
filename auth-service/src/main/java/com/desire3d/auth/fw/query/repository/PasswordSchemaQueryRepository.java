@@ -7,5 +7,5 @@ public interface PasswordSchemaQueryRepository {
 
 	public PasswordSchema findPasswordSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException;
 
-	public Iterable<PasswordSchema> findByIsActive(Boolean isActive);
+	public Iterable<PasswordSchema> findByIsActive(Boolean isActive) throws DataNotFoundException;
 }
