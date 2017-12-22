@@ -7,6 +7,7 @@ import javax.jdo.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.PasswordSchemaCommandRepository;
 import com.desire3d.auth.model.transactions.PasswordSchema;
 
@@ -17,7 +18,7 @@ public class PasswordSchemaCommandRepositoryImpl implements PasswordSchemaComman
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public PasswordSchema save(PasswordSchema passwordSchema) {
+	public PasswordSchema save(PasswordSchema passwordSchema) throws PersistenceException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
@@ -29,6 +30,7 @@ public class PasswordSchemaCommandRepositoryImpl implements PasswordSchemaComman
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			throw new PersistenceException(e.getMessage());
 		} finally {
 			pm.close();
 		}

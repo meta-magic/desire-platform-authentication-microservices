@@ -14,6 +14,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
 import com.desire3d.auth.exceptions.BusinessServiceException;
+import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.exceptions.ServiceException;
 import com.desire3d.auth.fw.query.service.LoginQueryService;
 
@@ -37,10 +38,12 @@ public class LoginController {
 			Single<Boolean> single = Single.just(loginService.userLogout());
 			single.subscribe(isLogout -> {
 				if (isLogout) {
-					ResponseBean responseBean = new ResponseBean(true, "You have successfully logged out!", "user.logout", null, null, isLogout);
+					ResponseBean responseBean = new ResponseBean(true, "You have successfully logged out!",
+							"user.logout", null, null, isLogout);
 					deferredResult.setResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				} else {
-					ResponseBean responseBean = new ResponseBean(false, null, null, "Logout failed", "user.logoutfailed", isLogout);
+					ResponseBean responseBean = new ResponseBean(false, null, null, "Logout failed",
+							"user.logoutfailed", isLogout);
 					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				}
 			}, exception -> {
@@ -50,6 +53,9 @@ public class LoginController {
 
 		} catch (BusinessServiceException e) {
 			ResponseBean responseBean = new ResponseBean(false, null, null, e.getMessage(), e.getMessageId(), null);
+			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
+		} catch (PersistenceException e) {
+			ResponseBean responseBean = new ResponseBean(false, null, null, e.getMessage(), e.getMessage(), null);
 			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 		} catch (Exception e) {
 			e.printStackTrace();

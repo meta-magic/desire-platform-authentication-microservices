@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.desire3d.auth.beans.LoginInfoHelperBean;
 import com.desire3d.auth.exceptions.BusinessServiceException;
 import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginHistoryCommandRepository;
 import com.desire3d.auth.fw.query.repository.AppSessionQueryRepository;
@@ -32,38 +33,32 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 	private LoginHistoryCommandRepository loginHistoryRepo;
 
 	@Autowired
-	private LoginHistoryQueryRepository loginHistoryQRepo;
-
-	@Autowired
 	private LoginInfoHelperBean loginInfoHelperBean;
 
 	@Override
-	public boolean userLogout() throws BusinessServiceException, DataNotFoundException {
+	public boolean userLogout() throws BusinessServiceException, DataNotFoundException, PersistenceException {
 
 		String appSessionId = loginInfoHelperBean.getAppSessionId();
 		String userId = loginInfoHelperBean.getUserId();
 		if (appSessionId == null && userId == null) {
 			throw new BusinessServiceException("user or appsessionid is null", "userid.null");
 		} else {
-
 			// UPDATE APPSSESSION ACTIVE STATUS
 			AppSession appSession = appSessionQRepo.findAppSessionByAppSessionIdAndIsActive(appSessionId, true);
 			appSession.setIsActive(false);
-			AuditDetails auditDetails = new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis()));
-			appSession.setAuditDetails(auditDetails);
+			appSession.setAuditDetails(
+					new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
 			appSessionRepo.update(appSession);
 
-			// UPDATE HISTRY TABLE
-			LoginHistory loginHistory = loginHistoryQRepo.findLoginHistoryByAppSessionIDAndUserUUIDAndIsActive(appSessionId, userId, true);
-			System.err.println("loginHistory : " + loginHistory);
-			if (loginHistory != null) {
-				loginHistory.setIsActive(false);
-				loginHistory.setAuditDetails(auditDetails);
-				loginHistoryRepo.save(loginHistory);
-			}
+			// ADD ENTRY IN LOGIN HISTORY FOR LOGOUT
+			LoginHistory loginHistory = new LoginHistory(loginInfoHelperBean.getMteid(),
+					loginInfoHelperBean.getUserId(), loginInfoHelperBean.getAppSessionId(), 2, 1, "127.0.0.1", "chrome",
+					"", 0.0, 0.0);
+			loginHistory.setAuditDetails(
+					new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis()),
+							loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
+			loginHistoryRepo.save(loginHistory);
 			return true;
 		}
 	}
 }
-
-// TODO Auto-generated method stub// TODO Auto-generated method stub
