@@ -41,7 +41,7 @@ public final class LoginDomainService {
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @return an {@link UserLoginCreatedEvent} 
 	 * */
-	public UserLoginCreatedEvent createUserLogin(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws Exception {
+	public UserLoginCreatedEvent createUserLogin(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws Throwable {
 		UserSchema userSchema = createUserSchema(event, loginInfoHelperBean);
 		createAuthSchema(event, userSchema, loginInfoHelperBean);
 		String password = createPasswordSchema(event, userSchema, loginInfoHelperBean);
@@ -86,7 +86,7 @@ public final class LoginDomainService {
 	 * @throws Exception 
 	 * */
 	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean)
-			throws Exception {
+			throws Throwable {
 		String password = event.getFirstName() + "@" + (new Random().nextInt(900) + 100);
 		PasswordSchema passwordSchema = new PasswordSchema(loginInfoHelperBean.getMteid(), userSchema.getUserUUID(), createPasswordHash(password));
 		passwordSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));

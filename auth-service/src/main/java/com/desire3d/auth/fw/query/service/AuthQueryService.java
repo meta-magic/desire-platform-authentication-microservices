@@ -8,7 +8,6 @@ public interface AuthQueryService {
 
 	public boolean validateLoginId(String loginId) throws BusinessServiceException, PersistenceException;
 
-	public LoginResponseDto authenticate(String loginId, String password)
-			throws BusinessServiceException, PersistenceException, Exception;
+	public LoginResponseDto authenticate(String loginId, String password) throws Throwable;
 
 }

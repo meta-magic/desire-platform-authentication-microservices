@@ -29,7 +29,7 @@ public class LoginController {
 	private LoginQueryService loginService;
 
 	@RequestMapping(value = "/logout", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request) throws ServiceException {
+	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request) throws Throwable {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 

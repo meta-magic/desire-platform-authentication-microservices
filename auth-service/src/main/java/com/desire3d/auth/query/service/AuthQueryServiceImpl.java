@@ -71,7 +71,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		return false;
 	}
 
-	public LoginResponseDto authenticate(String loginId, String password) throws Exception {
+	public LoginResponseDto authenticate(String loginId, String password) throws Throwable {
 
 		if (loginId == null || password == null) {
 			throw new BusinessServiceException("Invalid data, some of the fields are null", "invalidnull.data");

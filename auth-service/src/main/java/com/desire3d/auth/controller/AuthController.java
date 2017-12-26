@@ -47,7 +47,7 @@ public class AuthController {
 
 	@RequestMapping(value = "/validateloginid", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> validateLoginId(HttpServletRequest request,
-			@RequestBody UsernameAuthentication usernameAuthentication) throws ServiceException {
+			@RequestBody UsernameAuthentication usernameAuthentication) throws Throwable {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started %%%%%%%%%%%%%%*****");
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
@@ -82,7 +82,7 @@ public class AuthController {
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> authenticate(HttpServletRequest request,
-			@RequestBody LoginAuthentication loginAuthentication) throws ServiceException {
+			@RequestBody LoginAuthentication loginAuthentication) throws Throwable {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
