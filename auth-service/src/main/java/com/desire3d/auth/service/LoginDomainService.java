@@ -72,7 +72,7 @@ public final class LoginDomainService {
 	 * @throws PersistenceException 
 	 * */
 	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceException {
-		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getEmailId(), userSchema.getUserUUID(), event.getPersonUUID());
+		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getLoginId(), userSchema.getUserUUID(), event.getPersonUUID());
 		authSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		return authSchemaCommandRepository.save(authSchema);
 	}
