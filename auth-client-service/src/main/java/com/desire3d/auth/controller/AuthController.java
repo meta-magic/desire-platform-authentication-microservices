@@ -16,7 +16,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
 import com.desire3d.auth.component.BaseComponent;
-import com.desire3d.auth.component.LoadBalancer;
 import com.desire3d.auth.fallback.FallbackMessage;
 import com.desire3d.auth.fw.service.ReactiveService;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -28,25 +27,12 @@ public class AuthController extends BaseComponent {
 	@Autowired
 	private ReactiveService reactiveService;
 
-	@Autowired
-	private LoadBalancer loadBalancer;
-
 	@HystrixCommand(fallbackMethod = "validateLoginIdFallBack")
 	@RequestMapping(value = "/validateloginid", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> validateLoginId(HttpServletRequest request, @RequestBody Object object) {
 		System.out.println("*****auth-client-service AuthController:validateLoginId call reached*****");
 		HttpHeaders headers = this.createHeaders(request);
 		HttpEntity<?> requestEntity = new HttpEntity<>(object, headers);
-
-		//		WebClient webClient = WebClient.create(new ReactorClientHttpConnector());
-		//
-		//		ClientRequest<Void> request = ClientRequest.GET("http://localhost:8080/auth/validateloginid", 1L)
-		//		                .accept(MediaType.APPLICATION_JSON).build();
-		//
-		//		Mono<ResponseBean> account = this.webClient
-		//		                .exchange(loadBalancer.getServiceURL() + relativeUrl)
-		//		                .then(response -> response.body(toMono(ResponseBean.class)));
-
 		return reactiveService.callService("/auth/validateloginid", HttpMethod.POST, requestEntity);// needs to change
 																									// to webclient
 	}
@@ -65,6 +51,15 @@ public class AuthController extends BaseComponent {
 		HttpHeaders headers = this.createHeaders(request);
 		HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 		return reactiveService.callService("/auth/logout", HttpMethod.POST, requestEntity);
+	}
+	
+	@HystrixCommand(fallbackMethod = "validateLoginIdFallBack")
+	@RequestMapping(value = "/checkLoginIdAvailablility", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public DeferredResult<ResponseEntity<ResponseBean>> checkLoginIdAvailablility(HttpServletRequest request, @RequestBody Object object) {
+		System.out.println("*****auth-client-service AuthController:checkLoginIdAvailablility call reached*****");
+		HttpHeaders headers = this.createHeaders(request);
+		HttpEntity<?> requestEntity = new HttpEntity<>(object, headers);
+		return reactiveService.callService("/auth/checkLoginIdAvailablility", HttpMethod.POST, requestEntity);
 	}
 
 	DeferredResult<ResponseEntity<ResponseBean>> logoutFallBack(HttpServletRequest request) {

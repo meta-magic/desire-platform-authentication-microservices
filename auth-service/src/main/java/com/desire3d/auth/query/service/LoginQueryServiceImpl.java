@@ -13,7 +13,6 @@ import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginHistoryCommandRepository;
 import com.desire3d.auth.fw.query.repository.AppSessionQueryRepository;
-import com.desire3d.auth.fw.query.repository.LoginHistoryQueryRepository;
 import com.desire3d.auth.fw.query.service.LoginQueryService;
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.model.transactions.AppSession;

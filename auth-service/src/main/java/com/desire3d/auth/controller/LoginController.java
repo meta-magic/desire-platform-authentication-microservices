@@ -15,7 +15,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 import com.desire3d.auth.beans.ResponseBean;
 import com.desire3d.auth.exceptions.BusinessServiceException;
 import com.desire3d.auth.exceptions.PersistenceException;
-import com.desire3d.auth.exceptions.ServiceException;
 import com.desire3d.auth.fw.query.service.LoginQueryService;
 
 import io.reactivex.Single;
