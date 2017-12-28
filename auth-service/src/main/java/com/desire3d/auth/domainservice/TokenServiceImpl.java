@@ -1,9 +1,11 @@
-package com.desire3d.auth.service;
+package com.desire3d.auth.domainservice;
 
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.desire3d.auth.fw.domainservice.TokenService;
 
 import atg.taglib.json.util.JSONException;
 import atg.taglib.json.util.JSONObject;
@@ -16,7 +18,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class TokenServiceImpl implements TokenService {
-	
+
 	@Value("${token.key}")
 	private String tokenKey = null;
 

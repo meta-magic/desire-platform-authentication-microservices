@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.UserSchemaCommandRepository;
 import com.desire3d.auth.model.transactions.UserSchema;
+import com.desire3d.auth.utils.ExceptionID;
 
 /**
  * @author Mahesh Pardeshi
@@ -31,12 +32,12 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 			tx.begin();
 			userSchema = pm.makePersistent(userSchema);
 			tx.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

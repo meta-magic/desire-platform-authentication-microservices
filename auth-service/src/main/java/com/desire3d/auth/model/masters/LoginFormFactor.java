@@ -11,9 +11,10 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
 
 import com.desire3d.auth.model.AuditDetails;
+import com.desire3d.auth.utils.CommonValidator;
 
 @PersistenceCapable(table = "loginformfactor")
-public class LoginFormFactor implements Serializable {
+public class LoginFormFactor implements Serializable, CommonValidator {
 
 	private static final long serialVersionUID = 1L;
 

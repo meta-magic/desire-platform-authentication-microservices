@@ -25,14 +25,14 @@ public class AuditDetails {
 	public AuditDetails() {
 		super();
 	}
-	
+
 	/** Constructor to create {@link AuditDetails} to audit update log */
 	public AuditDetails(String updatedBy, Date updatedTime) {
 		super();
 		this.updatedBy = updatedBy;
 		this.updatedTime = updatedTime;
 	}
-	
+
 	/** Constructor to create {@link AuditDetails} to audit save log */
 	public AuditDetails(String createdBy, Date createdTime, String updatedBy, Date updatedTime) {
 		super();

@@ -1,5 +1,7 @@
 package com.desire3d.auth.controller;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
-import com.desire3d.auth.exceptions.BusinessServiceException;
-import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.query.service.LoginQueryService;
+import com.desire3d.auth.utils.ExceptionID;
 
 import io.reactivex.Single;
 
@@ -33,34 +34,21 @@ public class LoginController {
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		try {
-			Single<Boolean> single = Single.just(loginService.userLogout());
-			single.subscribe(isLogout -> {
-				if (isLogout) {
-					ResponseBean responseBean = new ResponseBean(true, "You have successfully logged out!",
-							"user.logout", null, null, isLogout);
-					deferredResult.setResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
-				} else {
-					ResponseBean responseBean = new ResponseBean(false, null, null, "Logout failed",
-							"user.logoutfailed", isLogout);
-					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
-				}
-			}, exception -> {
-				ResponseBean responseBean = new ResponseBean(false, null, null, exception.getMessage(), "", null);
+		Single<Boolean> single = Single.just(loginService.userLogout(request));
+		single.subscribe(isLogout -> {
+			if (isLogout) {
+				ResponseBean responseBean = new ResponseBean(true, ExceptionID.USER_LOGOUT, isLogout);
+				deferredResult.setResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
+			} else {
+				ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGOUT_FAILED);
 				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
-			});
+			}
+		}, exception -> {
+			new ResponseBean(false, ExceptionID.INVALID_USER_CREDENTIALS, exception.getMessage(), Arrays.asList(exception.getMessage()));
+			ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGOUT_FAILED, exception.getMessage(), Arrays.asList(exception.getMessage()));
+			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
+		});
 
-		} catch (BusinessServiceException e) {
-			ResponseBean responseBean = new ResponseBean(false, null, null, e.getMessage(), e.getMessageId(), null);
-			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
-		} catch (PersistenceException e) {
-			ResponseBean responseBean = new ResponseBean(false, null, null, e.getMessage(), e.getMessage(), null);
-			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
-		} catch (Exception e) {
-			e.printStackTrace();
-			ResponseBean responseBean = new ResponseBean(false, null, null, e.getMessage(), "", null);
-			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
-		}
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
 

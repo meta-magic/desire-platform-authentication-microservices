@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.desire3d.auth.exceptions.DataNotFoundException;
 import com.desire3d.auth.fw.query.repository.AppSessionQueryRepository;
 import com.desire3d.auth.model.transactions.AppSession;
+import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
 public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository {
@@ -30,12 +31,17 @@ public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository 
 			@SuppressWarnings("unchecked")
 			List<AppSession> appSessions = ((List<AppSession>) query.execute(appSessionId, true));
 			if (appSessions.isEmpty()) {
-				throw new DataNotFoundException("Data not found exception %s");
+				throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE);
 			} else {
 				appSession = appSessions.get(0);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
+			if (e instanceof DataNotFoundException) {
+				throw e;
+			} else {
+				e.printStackTrace();
+				throw new DataNotFoundException(e.getMessage(), e);
+			}
 		} finally {
 			pm.close();
 		}

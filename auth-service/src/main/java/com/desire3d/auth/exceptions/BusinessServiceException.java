@@ -2,6 +2,8 @@ package com.desire3d.auth.exceptions;
 
 public class BusinessServiceException extends Exception {
 
+	private static final long serialVersionUID = -4808333827689079158L;
+
 	private String message;
 
 	private String messageId;

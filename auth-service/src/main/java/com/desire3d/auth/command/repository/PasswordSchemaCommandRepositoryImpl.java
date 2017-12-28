@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.PasswordSchemaCommandRepository;
 import com.desire3d.auth.model.transactions.PasswordSchema;
+import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
 public class PasswordSchemaCommandRepositoryImpl implements PasswordSchemaCommandRepository {
@@ -25,12 +26,12 @@ public class PasswordSchemaCommandRepositoryImpl implements PasswordSchemaComman
 			tx.begin();
 			passwordSchema = pm.makePersistent(passwordSchema);
 			tx.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

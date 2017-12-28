@@ -13,36 +13,13 @@ import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.model.transactions.AppSession;
+import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
 public class AppSessionCommandRepositoryImpl implements AppSessionCommandRepository {
 
 	@Autowired
 	private PersistenceManagerFactory pmf;
-
-	@Override
-	public AppSession delete(String appSessionId) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		AppSession appSession = null;
-		try {
-			tx.begin();
-			appSession = pm.getObjectById(AppSession.class, appSessionId);
-			if (appSession.getIsActive()) {
-				appSession.setIsActive(false);
-			}
-			appSession = pm.makePersistent(appSession);
-			tx.commit();
-		} catch (Exception e) {
-			if (tx.isActive()) {
-				tx.rollback();
-			}
-			e.printStackTrace();
-		} finally {
-			pm.close();
-		}
-		return appSession;
-	}
 
 	@Override
 	public AppSession update(AppSession appSession) throws PersistenceException {
@@ -65,12 +42,12 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			System.err.println("After update : " + appSession_old);
 
 			tx.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(ExceptionID.ERROR_UPDATE, e);
 
 		} finally {
 			// pm.close();
@@ -86,12 +63,12 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			tx.begin();
 			appSession = pm.makePersistent(appSession);
 			tx.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

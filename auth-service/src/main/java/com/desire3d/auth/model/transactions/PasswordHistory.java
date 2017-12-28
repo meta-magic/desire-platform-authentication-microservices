@@ -11,9 +11,10 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
 
 import com.desire3d.auth.model.AuditDetails;
+import com.desire3d.auth.utils.CommonValidator;
 
 @PersistenceCapable(table = "passwordhistory")
-public class PasswordHistory implements Serializable {
+public class PasswordHistory implements Serializable, CommonValidator {
 
 	private static final long serialVersionUID = 1476749523123452522L;
 

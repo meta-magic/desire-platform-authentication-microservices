@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.LoginFailureCommandRepository;
 import com.desire3d.auth.model.transactions.LoginFailure;
+import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
 public class LoginFailureCommandRepositoryImpl implements LoginFailureCommandRepository {
@@ -25,12 +26,12 @@ public class LoginFailureCommandRepositoryImpl implements LoginFailureCommandRep
 			tx.begin();
 			loginFailure = pm.makePersistent(loginFailure);
 			tx.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

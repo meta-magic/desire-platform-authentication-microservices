@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.desire3d.auth.exceptions.PersistenceException;
 import com.desire3d.auth.fw.command.repository.AuthSchemaCommandRepository;
 import com.desire3d.auth.model.transactions.AuthSchema;
+import com.desire3d.auth.utils.ExceptionID;
 
 /**
  * @author Mahesh Pardeshi
@@ -29,12 +30,12 @@ public class AuthSchemaCommandRepositoryImpl implements AuthSchemaCommandReposit
 			tx.begin();
 			authSchema = pm.makePersistent(authSchema);
 			tx.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

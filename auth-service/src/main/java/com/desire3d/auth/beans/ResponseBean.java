@@ -6,17 +6,23 @@ package com.desire3d.auth.beans;
  * Response bean
  */
 import java.io.Serializable;
+import java.util.List;
 
 public class ResponseBean implements Serializable {
+
+	private static final long serialVersionUID = 4406922404046365093L;
+
 	private boolean success;
 
 	private String successMessage;
 
 	private String successCode;
 
+	private String errorCode;
+
 	private String errorMessage;
 
-	private String errorCode;
+	private List<String> errors;
 
 	private Object response;
 
@@ -24,14 +30,45 @@ public class ResponseBean implements Serializable {
 		super();
 	}
 
-	public ResponseBean(boolean success, String successMessage, String successCode, String errorMessage, String errorCode, Object response) {
+	/**
+	 * Constructor to build success response
+	 * 
+	 * e.g ResponseBean response = new ResponseBean(true, "completed operation
+	 * successfully", "success.persistence", responseData);
+	 * 
+	 */
+	public ResponseBean(boolean success, String successCode, Object response) {
 		super();
 		this.success = success;
-		this.successMessage = successMessage;
 		this.successCode = successCode;
-		this.errorMessage = errorMessage;
-		this.errorCode = errorCode;
 		this.response = response;
+	}
+
+	/**
+	 * Constructor to build exceptional response
+	 * 
+	 * e.g ResponseBean responseBean = new ResponseBean(false, "error.persistence",
+	 * "Data failed to save", Arrays.asList(exception.getMessage()));
+	 * 
+	 */
+	public ResponseBean(boolean success, String errorCode, String errorMessage, List<String> errors) {
+		super();
+		this.success = success;
+		this.errorCode = errorCode;
+		this.errorMessage = errorMessage;
+		this.errors = errors;
+	}
+
+	/**
+	 * Constructor to build exceptional response
+	 * 
+	 * e.g ResponseBean responseBean = new ResponseBean(false, "error.persistence")
+	 * 
+	 */
+	public ResponseBean(boolean success, String errorCode) {
+		super();
+		this.success = success;
+		this.errorCode = errorCode;
 	}
 
 	public boolean isSuccess() {
@@ -82,10 +119,13 @@ public class ResponseBean implements Serializable {
 		this.response = response;
 	}
 
+	public List<String> getErrors() {
+		return errors;
+	}
+
 	@Override
 	public String toString() {
 		return "ResponseBean [success=" + success + ", successMessage=" + successMessage + ", successCode=" + successCode + ", errorMessage=" + errorMessage
 				+ ", errorCode=" + errorCode + ", response=" + response + "]";
 	}
-
 }

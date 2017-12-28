@@ -1,4 +1,4 @@
-package com.desire3d.auth.service;
+package com.desire3d.auth.fw.domainservice;
 
 import atg.taglib.json.util.JSONException;
 import atg.taglib.json.util.JSONObject;

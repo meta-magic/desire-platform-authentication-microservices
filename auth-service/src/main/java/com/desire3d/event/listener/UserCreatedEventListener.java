@@ -8,8 +8,8 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
-import com.desire3d.auth.service.HelperDomainService;
-import com.desire3d.auth.service.LoginDomainService;
+import com.desire3d.auth.domainservice.HelperDomainService;
+import com.desire3d.auth.domainservice.LoginDomainService;
 import com.desire3d.channel.UserCreationChannel;
 import com.desire3d.event.UserCreatedEvent;
 import com.desire3d.event.UserLoginCreatedEvent;

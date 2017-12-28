@@ -18,41 +18,54 @@ import com.desire3d.auth.fw.service.MessageService;
 
 @Component
 @Aspect
-public class ControllerAspect {
-
+public class ControllerAspect 
+{
+	
 	@Autowired
 	private MessageService messageService;
 
-	@Around("execution(* com.desire3d.auth.controller..*.*(..))")
-	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
+	@Around("execution(* com.desire3d.persona.controller..*.*(..))")
+	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable
+	{
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-
-		String msg = joinPoint.getTarget().getClass() + " " + signature.getName();
-
-		System.out.println(new Date() + " Executing [ " + msg + "  ] starts");
+		
+		String msg = joinPoint.getTarget().getClass() +" "+ signature.getName();
+		
+		System.out.println(new Date()+" Executing [ "+msg+"  ] starts");
 		Object retVal = joinPoint.proceed();
-		System.out.println(new Date() + " Execution [ " + msg + "  ] ends");
+		System.out.println(new Date()+" Execution [ "+msg+"  ] ends");
 		return retVal;
 	}
-
-	@Around("execution(* com.desire3d.auth.controller..*.*(..))")
+	
+	@Around("execution(* com.desire3d.persona.controller..*.*(..))")
 	public Object addMessage(ProceedingJoinPoint joinPoint) {
-		System.out.println("*****Inside addMessage advice*****");
+		
 		Object response = null;
 		try {
 			/* IF SERVICE RETURNS DATA SUCCCESSFULLY */
 			response = joinPoint.proceed();
 			if (response instanceof ResponseEntity<?>) {
-				System.out.println("*****Inside addMessage advice ResponseEntity<?>*****");
 				ResponseEntity<?> responseEntity = (ResponseEntity<?>) response;
 				ResponseBean responseBean = (ResponseBean) responseEntity.getBody();
-				this.prepareResponseBean(responseBean);
-			} else if (response instanceof DeferredResult<?>) {
-				System.out.println("*****Inside addMessage advice DeferredResult<?>*****");
-				//				DeferredResult<?> deferredResult = (DeferredResult<?>) response;
-				//				ResponseEntity<?> responseEntity = (ResponseEntity<?>) deferredResult.getResult();
-				//				ResponseBean responseBean = (ResponseBean) responseEntity.getBody();
-				//	this.prepareResponseBean(responseBean);
+				if (responseBean.isSuccess()) {
+					try {
+						String message = messageService.getMessage(responseBean.getSuccessCode());
+						if(message!=null){
+							responseBean.setSuccessMessage(message);	
+						}
+					} catch (IOException e) {
+						// ADD LOG
+					}
+				} else {
+					try {
+						String message = messageService.getMessage(responseBean.getErrorCode());
+						if(message!=null){
+							responseBean.setErrorMessage(message);	
+						}
+					} catch (IOException e) {
+						// ADD LOG
+					}
+				}
 			}
 		} catch (Throwable error) {
 			/* IF SERVICE THROWS AN EXCEPTION */
@@ -65,29 +78,8 @@ public class ControllerAspect {
 			}
 			ResponseBean responseBean = new ResponseBean(false, message, "error.global", 404);
 			return new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK);
+
 		}
 		return response;
-	}
-
-	private void prepareResponseBean(ResponseBean responseBean) {
-		if (responseBean.isSuccess()) {
-			try {
-				String message = messageService.getMessage(responseBean.getSuccessCode());
-				if (message != null) {
-					responseBean.setSuccessMessage(message);
-				}
-			} catch (IOException e) {
-				// ADD LOG
-			}
-		} else {
-			try {
-				String message = messageService.getMessage(responseBean.getErrorCode());
-				if (message != null) {
-					responseBean.setErrorMessage(message);
-				}
-			} catch (IOException e) {
-				// ADD LOG
-			}
-		}
 	}
 }

@@ -1,11 +1,9 @@
 package com.desire3d.auth.fw.query.service;
 
-import com.desire3d.auth.exceptions.BusinessServiceException;
-import com.desire3d.auth.exceptions.DataNotFoundException;
-import com.desire3d.auth.exceptions.PersistenceException;
+import javax.servlet.http.HttpServletRequest;
 
 public interface LoginQueryService {
 
-	public boolean userLogout() throws BusinessServiceException, DataNotFoundException, PersistenceException;
+	public boolean userLogout(HttpServletRequest request) throws Throwable;
 
 }

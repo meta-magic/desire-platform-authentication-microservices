@@ -19,6 +19,33 @@ public class UserSchemaQueryRepositoryImpl implements UserSchemaQueryRepository 
 	@Autowired
 	private PersistenceManagerFactory pmf;
 
+	/*@Override
+	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		UserSchema userSchema = null;
+		try {
+			Query query = pm.newQuery(UserSchema.class);
+			query.setFilter("this.userUUID==:userUUID && isActive==:true");
+			@SuppressWarnings("unchecked")
+			List<UserSchema> userSchemas = ((List<UserSchema>) query.execute(userUUID, true));
+			if (userSchemas.isEmpty()) {
+				throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE);
+			} else {
+				userSchema = pm.detachCopy(userSchemas.get(0));
+			}
+		} catch (Throwable e) {
+			if (e instanceof DataNotFoundException) {
+				throw e;
+			} else {
+				e.printStackTrace();
+				throw new DataNotFoundException(e.getMessage(), e);
+			}
+		} finally {
+			pm.close();
+		}
+		return userSchema;
+	}*/
+
 	@Override
 	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException {
 		PersistenceManager pm = pmf.getPersistenceManager();
@@ -33,5 +60,4 @@ public class UserSchemaQueryRepositoryImpl implements UserSchemaQueryRepository 
 			return userSchemas.get(0);
 		}
 	}
-
 }

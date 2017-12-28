@@ -9,9 +9,10 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.desire3d.auth.model.AuditDetails;
+import com.desire3d.auth.utils.CommonValidator;
 
 @PersistenceCapable(table = "appstate")
-public class AppState implements Serializable {
+public class AppState implements Serializable, CommonValidator {
 
 	private static final long serialVersionUID = -5588316615133630427L;
 

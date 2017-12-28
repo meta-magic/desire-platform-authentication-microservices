@@ -1,7 +1,9 @@
 package com.desire3d.auth.aop;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -12,10 +14,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
-import com.desire3d.auth.exceptions.ServiceException;
-import com.desire3d.auth.service.MessageService;
+import com.desire3d.auth.exceptions.BaseException;
+import com.desire3d.auth.fw.domainservice.MessageService;
+import com.desire3d.auth.utils.CommonValidator;
+import com.desire3d.auth.utils.DataValidator;
+import com.desire3d.auth.utils.ExceptionID;
 
 @Component
 @Aspect
@@ -25,7 +31,7 @@ public class ControllerAspect {
 	@Autowired
 	private MessageService messageService;
 
-	@Around("execution(* com.desire3d.auth.controller..*.*(..))")
+	@Around("execution(* com.desire3d.*.controller..*.*(..))")
 	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
@@ -37,66 +43,84 @@ public class ControllerAspect {
 		return response;
 	}
 
-	@Around("execution(* com.desire3d.auth.controller..*.*(..))")
-	public Object addMessage(ProceedingJoinPoint joinPoint) {
-
-		Object response = null;
-		try {
-			/* IF SERVICE RETURNS DATA SUCCCESSFULLY */
-			response = joinPoint.proceed();
-			if (response instanceof ResponseEntity<?>) {
-				ResponseEntity<?> responseEntity = (ResponseEntity<?>) response;
-				ResponseBean responseBean = (ResponseBean) responseEntity.getBody();
-				if (responseBean.isSuccess()) {
-					try {
-						String message = messageService.getMessage(responseBean.getSuccessCode());
-						if (message != null) {
-							responseBean.setSuccessMessage(message);
-						}
-					} catch (IOException e) {
-						// ADD LOG
-					}
+	@Around("execution(* com.desire3d.*.controller..*.*(..))")
+	public Object processCall(ProceedingJoinPoint joinPoint) {
+		List<String> errors = validate(joinPoint);
+		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>(60000L);
+		if (!errors.isEmpty()) {
+			String message = messageService.getMessageById(ExceptionID.ERROR_VALIDATION);
+			ResponseBean responseBean = new ResponseBean(false, ExceptionID.ERROR_VALIDATION, message, errors);
+			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
+			return deferredResult;
+		} else {
+			Object response = null;
+			try {
+				/* IF SERVICE RETURNS DATA SUCCCESSFULLY */
+				response = joinPoint.proceed();
+				if (response instanceof ResponseEntity<?>) {
+					ResponseEntity<?> responseEntity = (ResponseEntity<?>) response;
+					addResponseMessage((ResponseBean) responseEntity.getBody());
+				} else if (response instanceof DeferredResult<?>) {
+					@SuppressWarnings("unchecked")
+					ResponseEntity<ResponseBean> responseEntity = (ResponseEntity<ResponseBean>) ((DeferredResult<ResponseEntity<ResponseBean>>) response)
+							.getResult();
+					addResponseMessage((ResponseBean) responseEntity.getBody());
+				}
+				return response;
+			} catch (Throwable error) {
+				if (error instanceof BaseException) {
+					BaseException exception = (BaseException) error;
+					String message = messageService.getExceptionMessage(exception);
+					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message, Arrays.asList(error.getMessage()));
+					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				} else {
-					try {
-						String message = messageService.getMessage(responseBean.getErrorCode());
-						if (message != null) {
-							responseBean.setErrorMessage(message);
-						}
-					} catch (IOException e) {
-						// ADD LOG
-					}
+					String message = messageService.getMessageById(ExceptionID.ERROR_GLOBAL, error);
+					ResponseBean responseBean = new ResponseBean(false, ExceptionID.ERROR_GLOBAL, message, Arrays.asList(error.getMessage()));
+					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				}
+				return deferredResult;
 			}
-		} catch (Throwable error) {
-			/* IF SERVICE THROWS AN EXCEPTION */
-			if (error instanceof ServiceException) {
-				ServiceException serviceException = (ServiceException) error;
-				String message = null;
-				try {
-					message = messageService.getMessage(serviceException.getMessageId());
-					if (message == null) {
-						message = serviceException.getMessage();
-					}
-				} catch (IOException e) {
-					// ADD LOG
-					message = serviceException.getMessage();
-				}
-				ResponseBean responseBean = new ResponseBean(false, null, null, message, serviceException.getMessageId(), null);
-				return new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK);
-			} else {
-				String message = null;
-				try {
-					message = messageService.getMessage("error.global");
-				} catch (IOException e) {
-					// ADD LOG
-					message = "The service failed to respond";
-				}
-				ResponseBean responseBean = new ResponseBean(false, null, null, message, "error.global", null);
-				return new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK);
-			}
-
 		}
-		return response;
 	}
 
+	/**
+	 * METHO TO VALIDATE BEAN AND IF BEAN IS NOT VALIDATE THEN GENERATE ERROR
+	 * MESSAGES
+	 * 
+	 */
+	private List<String> validate(ProceedingJoinPoint joinPoint) {
+		Object obj[] = joinPoint.getArgs();
+		List<String> errors = new ArrayList<String>();
+		for (int i = 0; i < obj.length; i++) {
+			if (obj[i] instanceof CommonValidator) {
+				errors = this.hasErrors((CommonValidator) obj[i]);
+				if (!errors.isEmpty()) {
+					break;
+				}
+			}
+		}
+		return errors;
+	}
+
+	private List<String> hasErrors(CommonValidator bean) {
+		List<String> errors = DataValidator.validate(bean);
+		return errors;
+	}
+
+	/**
+	 * ADD SUCCESS MESSAGE TO {@link ResponseBean}
+	 * 
+	 * @param responseBean
+	 */
+	private void addResponseMessage(ResponseBean responseBean) {
+		if (responseBean.isSuccess()) {
+			String messageId = responseBean.getSuccessCode();
+			String message = messageService.getMessageById(messageId);
+			responseBean.setSuccessMessage(message);
+		} else {
+			String messageId = responseBean.getErrorCode();
+			String message = messageService.getMessageById(messageId);
+			responseBean.setErrorMessage(message);
+		}
+	}
 }

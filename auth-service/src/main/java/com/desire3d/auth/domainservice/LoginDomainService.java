@@ -1,4 +1,4 @@
-package com.desire3d.auth.service;
+package com.desire3d.auth.domainservice;
 
 import java.util.Date;
 import java.util.Random;
@@ -45,7 +45,8 @@ public final class LoginDomainService {
 		UserSchema userSchema = createUserSchema(event, loginInfoHelperBean);
 		createAuthSchema(event, userSchema, loginInfoHelperBean);
 		String password = createPasswordSchema(event, userSchema, loginInfoHelperBean);
-		return new UserLoginCreatedEvent(event.getLoginId(), userSchema.getUserUUID(), password, event.getFirstName(), event.getLastName(), event.getEmailId(), event.getPhoneNumber());
+		return new UserLoginCreatedEvent(event.getLoginId(), userSchema.getUserUUID(), password, event.getFirstName(), event.getLastName(), event.getEmailId(),
+				event.getPhoneNumber());
 	}
 
 	/**
@@ -71,7 +72,8 @@ public final class LoginDomainService {
 	 * @return saved {@link AuthSchema} 
 	 * @throws PersistenceException 
 	 * */
-	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceException {
+	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean)
+			throws PersistenceException {
 		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getLoginId(), userSchema.getUserUUID(), event.getPersonUUID());
 		authSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		return authSchemaCommandRepository.save(authSchema);

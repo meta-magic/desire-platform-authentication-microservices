@@ -11,9 +11,10 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
+import com.desire3d.auth.utils.CommonValidator;
 
 @PersistenceCapable(table = "authschema")
-public class AuthSchema implements Serializable {
+public class AuthSchema implements Serializable, CommonValidator {
 
 	private static final long serialVersionUID = -4040722821357087375L;
 

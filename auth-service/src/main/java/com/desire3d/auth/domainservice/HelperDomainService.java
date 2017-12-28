@@ -1,9 +1,10 @@
-package com.desire3d.auth.service;
+package com.desire3d.auth.domainservice;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
+import com.desire3d.auth.fw.domainservice.TokenService;
 
 import atg.taglib.json.util.JSONException;
 import atg.taglib.json.util.JSONObject;
