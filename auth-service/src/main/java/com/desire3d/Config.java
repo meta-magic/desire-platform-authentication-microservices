@@ -15,6 +15,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 //import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.web.client.RestTemplate;
 
+import com.desire3d.channel.NotificationChannel;
 import com.desire3d.channel.UserCreationChannel;
 
 @RefreshScope
@@ -22,7 +23,7 @@ import com.desire3d.channel.UserCreationChannel;
 @EnableEurekaClient
 @EnableAspectJAutoProxy
 @ComponentScan
-@EnableBinding(UserCreationChannel.class)
+@EnableBinding({ UserCreationChannel.class, NotificationChannel.class })
 public class Config {
 
 	@LoadBalanced
@@ -30,10 +31,4 @@ public class Config {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
-
-	/**
-	 * Set config properties from properties
-	 * 
-	 */
-
 }

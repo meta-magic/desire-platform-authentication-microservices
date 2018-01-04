@@ -1,6 +1,8 @@
 package com.desire3d.auth.domainservice;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,9 @@ import com.desire3d.auth.model.transactions.AuthSchema;
 import com.desire3d.auth.model.transactions.PasswordSchema;
 import com.desire3d.auth.model.transactions.UserSchema;
 import com.desire3d.auth.utils.HashingAlgorithms;
+import com.desire3d.event.EmailNotificationEvent;
 import com.desire3d.event.UserCreatedEvent;
-import com.desire3d.event.UserLoginCreatedEvent;
+import com.desire3d.event.publisher.NotificationEventPublisher;
 
 /**
  * @author Mahesh Pardeshi
@@ -35,18 +38,20 @@ public final class LoginDomainService {
 	@Autowired
 	private PasswordSchemaCommandRepository passwordSchemaCommandRepository;
 
+	@Autowired
+	private NotificationEventPublisher publisher;
+
 	/**
 	 * Method used to create user login after creation of user account 
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
-	 * @return an {@link UserLoginCreatedEvent} 
+	 * 
 	 * */
-	public UserLoginCreatedEvent createUserLogin(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws Throwable {
+	public void createUserLogin(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws Throwable {
 		UserSchema userSchema = createUserSchema(event, loginInfoHelperBean);
 		createAuthSchema(event, userSchema, loginInfoHelperBean);
 		String password = createPasswordSchema(event, userSchema, loginInfoHelperBean);
-		return new UserLoginCreatedEvent(event.getLoginId(), userSchema.getUserUUID(), password, event.getFirstName(), event.getLastName(), event.getEmailId(),
-				event.getPhoneNumber());
+		publishLoginCreatedEvents(event, password);
 	}
 
 	/**
@@ -105,5 +110,27 @@ public final class LoginDomainService {
 	 * */
 	public String createPasswordHash(final String password) throws Exception {
 		return HashingAlgorithms.getInstance().createHash(password, HashingAlgorithms.MD5);
+	}
+
+	/**
+	 * Method used publish events after user login created successfully 
+	 * 
+	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
+	 * @param password
+	 * */
+	private void publishLoginCreatedEvents(final UserCreatedEvent event, final String password) {
+		Map<String, Object> loginContext = new HashMap<String, Object>();
+		loginContext.put("username", event.getFirstName() + " " + event.getLastName());
+		loginContext.put("loginid", event.getLoginId());
+		EmailNotificationEvent loginIdNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration", "a5cbc718-c650-440d-a23d-f2185b80f431",
+				loginContext);
+		publisher.publish(loginIdNotification);
+
+		Map<String, Object> passwordContext = new HashMap<String, Object>();
+		passwordContext.put("username", event.getFirstName() + " " + event.getLastName());
+		passwordContext.put("password", password);
+		EmailNotificationEvent passwordNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration",
+				"b5cbc718-c650-440d-a23d-f2185b80f432", passwordContext);
+		publisher.publish(passwordNotification);
 	}
 }

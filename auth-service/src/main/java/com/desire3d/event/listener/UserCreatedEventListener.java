@@ -12,8 +12,6 @@ import com.desire3d.auth.domainservice.HelperDomainService;
 import com.desire3d.auth.domainservice.LoginDomainService;
 import com.desire3d.channel.UserCreationChannel;
 import com.desire3d.event.UserCreatedEvent;
-import com.desire3d.event.UserLoginCreatedEvent;
-import com.desire3d.event.publisher.UserLoginCreatedEventPublisher;
 
 /**
  * @author Mahesh Pardeshi
@@ -27,9 +25,6 @@ public class UserCreatedEventListener extends HelperDomainService {
 	@Autowired
 	private LoginDomainService loginDomainService;
 
-	@Autowired
-	private UserLoginCreatedEventPublisher publisher;
-
 	@StreamListener(UserCreationChannel.USER_CREATION_INPUT)
 	public void listen(Message<UserCreatedEvent> message) {
 		logger.info("Message '{}' received ", message);
@@ -37,10 +32,8 @@ public class UserCreatedEventListener extends HelperDomainService {
 		try {
 			String tokenId = (String) message.getHeaders().get("tokenId");
 			LoginInfoHelperBean loginInfoHelperBean = deserializeToken(tokenId);
-			UserLoginCreatedEvent userLoginCreatedEvent = loginDomainService.createUserLogin(event, loginInfoHelperBean);
-			System.err.println("userLoginCreatedEvent : " + userLoginCreatedEvent);
+			loginDomainService.createUserLogin(event, loginInfoHelperBean);
 			logger.info("Login Created Successfully for event '{}'", event);
-			publisher.publish(userLoginCreatedEvent, tokenId);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			logger.info("Login Creation Failed for event '{}'", event);

@@ -42,7 +42,7 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 				throw new DataNotFoundException(e.getMessage(), e);
 			}
 		} finally {
-//			pm.close();
+			//			pm.close();
 		}
 		return schema;
 	}

@@ -44,7 +44,6 @@ public class LoginController {
 				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 			}
 		}, exception -> {
-			new ResponseBean(false, ExceptionID.INVALID_USER_CREDENTIALS, exception.getMessage(), Arrays.asList(exception.getMessage()));
 			ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGOUT_FAILED, exception.getMessage(), Arrays.asList(exception.getMessage()));
 			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 		});
