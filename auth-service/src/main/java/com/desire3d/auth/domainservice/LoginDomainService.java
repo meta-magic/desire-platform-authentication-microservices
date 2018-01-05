@@ -17,10 +17,13 @@ import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.model.transactions.AuthSchema;
 import com.desire3d.auth.model.transactions.PasswordSchema;
 import com.desire3d.auth.model.transactions.UserSchema;
+import com.desire3d.auth.utils.Constants;
 import com.desire3d.auth.utils.HashingAlgorithms;
 import com.desire3d.event.EmailNotificationEvent;
 import com.desire3d.event.UserCreatedEvent;
+import com.desire3d.event.UserLoginCreatedEvent;
 import com.desire3d.event.publisher.NotificationEventPublisher;
+import com.desire3d.event.publisher.UserLoginCreatedEventPublisher;
 
 /**
  * @author Mahesh Pardeshi
@@ -39,8 +42,12 @@ public final class LoginDomainService {
 	private PasswordSchemaCommandRepository passwordSchemaCommandRepository;
 
 	@Autowired
-	private NotificationEventPublisher publisher;
+	private NotificationEventPublisher notificationEventPublisher;
 
+	@Autowired
+	private UserLoginCreatedEventPublisher userLoginCreatedEventPublisher;
+	
+	private LoginInfoHelperBean loginInfoHelperBean = null;
 	/**
 	 * Method used to create user login after creation of user account 
 	 * 
@@ -48,10 +55,11 @@ public final class LoginDomainService {
 	 * 
 	 * */
 	public void createUserLogin(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws Throwable {
-		UserSchema userSchema = createUserSchema(event, loginInfoHelperBean);
-		createAuthSchema(event, userSchema, loginInfoHelperBean);
-		String password = createPasswordSchema(event, userSchema, loginInfoHelperBean);
-		publishLoginCreatedEvents(event, password);
+		this.loginInfoHelperBean = loginInfoHelperBean;
+		UserSchema userSchema = createUserSchema(event);
+		createAuthSchema(event, userSchema);
+		String password = createPasswordSchema(event, userSchema);
+		publishLoginCreatedEvents(event, password, userSchema.getUserUUID());
 	}
 
 	/**
@@ -61,7 +69,7 @@ public final class LoginDomainService {
 	 * @return {@link UserSchema}
 	 * @throws PersistenceException 
 	 * */
-	private UserSchema createUserSchema(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceException {
+	private UserSchema createUserSchema(final UserCreatedEvent event) throws PersistenceException {
 		UserSchema userSchema = new UserSchema();
 		userSchema.setFirstTimeLogin(true);
 		userSchema.setUserType("1");
@@ -77,7 +85,7 @@ public final class LoginDomainService {
 	 * @return saved {@link AuthSchema} 
 	 * @throws PersistenceException 
 	 * */
-	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean)
+	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema)
 			throws PersistenceException {
 		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getLoginId(), userSchema.getUserUUID(), event.getPersonUUID());
 		authSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
@@ -92,7 +100,7 @@ public final class LoginDomainService {
 	 * @return created password
 	 * @throws Exception 
 	 * */
-	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean)
+	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema)
 			throws Throwable {
 		String password = event.getFirstName() + "@" + (new Random().nextInt(900) + 100);
 		PasswordSchema passwordSchema = new PasswordSchema(loginInfoHelperBean.getMteid(), userSchema.getUserUUID(), createPasswordHash(password));
@@ -117,20 +125,49 @@ public final class LoginDomainService {
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @param password
+	 * @param userId
 	 * */
-	private void publishLoginCreatedEvents(final UserCreatedEvent event, final String password) {
+	private void publishLoginCreatedEvents(final UserCreatedEvent event, final String password, final String userId) {
+		publishLoginIdNotification(event);
+		publishPasswordNotification(event, password);
+		publishUserLoginCreatedEvent(userId);
+	}
+
+	/**
+	 * Method used publish {@link EmailNotificationEvent} for login id
+	 * 
+	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
+	 * */
+	private boolean publishLoginIdNotification(final UserCreatedEvent event) {
 		Map<String, Object> loginContext = new HashMap<String, Object>();
 		loginContext.put("username", event.getFirstName() + " " + event.getLastName());
 		loginContext.put("loginid", event.getLoginId());
-		EmailNotificationEvent loginIdNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration", "a5cbc718-c650-440d-a23d-f2185b80f431",
-				loginContext);
-		publisher.publish(loginIdNotification);
+		EmailNotificationEvent loginIdNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration",
+				Constants.TEMPLATE_ID_FOR_LOGINID_NOTIFICATION, loginContext);
+		return notificationEventPublisher.publish(loginIdNotification);
+	}
 
+	/**
+	 * Method used publish {@link EmailNotificationEvent} for login password
+	 * 
+	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
+	 * @param password
+	 * */
+	private boolean publishPasswordNotification(final UserCreatedEvent event, final String password) {
 		Map<String, Object> passwordContext = new HashMap<String, Object>();
 		passwordContext.put("username", event.getFirstName() + " " + event.getLastName());
 		passwordContext.put("password", password);
 		EmailNotificationEvent passwordNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration",
-				"b5cbc718-c650-440d-a23d-f2185b80f432", passwordContext);
-		publisher.publish(passwordNotification);
+				Constants.TEMPLATE_ID_FOR_PASSWORD_NOTIFICATION, passwordContext);
+		return notificationEventPublisher.publish(passwordNotification);
+	}
+
+	/**
+	 * Method used publish {@link UserLoginCreatedEvent} for User role mapping & Instance creation
+	 * 
+	 * @param userId
+	 * */
+	private boolean publishUserLoginCreatedEvent(final String userId) {
+		return userLoginCreatedEventPublisher.publish(new UserLoginCreatedEvent(userId), loginInfoHelperBean);
 	}
 }

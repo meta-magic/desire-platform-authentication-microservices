@@ -3,7 +3,6 @@ package com.desire3d.event.publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,6 @@ import com.desire3d.event.EmailNotificationEvent;
  * @author Mahesh Pardeshi
  */
 @Component
-@EnableBinding(NotificationChannel.class)
 public class NotificationEventPublisher {
 
 	private final Logger logger = LoggerFactory.getLogger(NotificationEventPublisher.class);
@@ -25,10 +23,11 @@ public class NotificationEventPublisher {
 	@Autowired
 	private NotificationChannel notificationChannel;
 
-	public void publish(final EmailNotificationEvent event) {
+	public boolean publish(final EmailNotificationEvent event) {
 		Message<EmailNotificationEvent> message = MessageBuilder.withPayload(event).build();
 		logger.info("Publishing message '{}' with payload type '{}' ", message, EmailNotificationEvent.class);
 		boolean status = notificationChannel.emailNotificationOutputChannel().send(message);
 		logger.info("Published message '{}' with status '{}' ", message, status);
+		return status;
 	}
 }
