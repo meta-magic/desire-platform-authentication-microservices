@@ -9,6 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -23,20 +24,27 @@ public class LoginFormFactor implements Serializable, CommonValidator {
 	private Integer loginFormFactorId;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "Login factor label should not be null")
+	@Size(min = 1, max = 128, message = "Login factor label must be between 1 and 128 characters")
 	private String label;
 
 	@Persistent
+	@NotNull(message = "Login factor icon should not be null")
+	@Size(min = 1, max = 128, message = "Login factor icon must be between 1 and 128 characters")
 	private String icon;
 
 	@Persistent
+	@NotNull(message = "Login factor help should not be null")
+	@Size(min = 1, max = 256, message = "Login factor help must be between 1 and 256 characters")
 	private String help;
 
 	@Persistent
+	@NotNull(message = "Login factor description should not be null")
+	@Size(min = 1, max = 128, message = "Login factor description must be between 1 and 128 characters")
 	private String description;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

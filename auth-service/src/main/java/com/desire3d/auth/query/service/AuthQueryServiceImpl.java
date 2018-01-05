@@ -13,7 +13,7 @@ import com.desire3d.auth.dto.AuthenticateResponse;
 import com.desire3d.auth.dto.LoginResponseDto;
 import com.desire3d.auth.exceptions.BaseDomainServiceException;
 import com.desire3d.auth.exceptions.BaseException;
-import com.desire3d.auth.exceptions.PersistenceException;
+import com.desire3d.auth.exceptions.PersistenceFailureException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginFailureCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginHistoryCommandRepository;
@@ -89,7 +89,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 			LoginResponseDto loginResponse = new LoginResponseDto(appSession.getAppSessionId(), authResp.getUserSchema().isFirstTimeLogin(),
 					authResp.getUserSchema().getAccountBlocked(), authResp.getUserSchema().isAccountExpired(), authResp.getUserSchema().isChangePassword(),
-					tokenid, null);
+					tokenid);
 
 			System.out.println("loginRespose********" + loginResponse);
 			return loginResponse;
@@ -101,7 +101,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	}
 
 	// AppSessionId
-	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession, HttpServletRequest request) throws PersistenceException {
+	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession, HttpServletRequest request) throws PersistenceFailureException {
 		LoginHistory loginHistory = new LoginHistory(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getUserUUID(), appSession.getAppSessionId(),
 				1, 1, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), 0.0, 0.0);
 		// SET HELPER CLASS DATA
@@ -116,19 +116,17 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		return loginHistory;
 	}
 
-	private LoginFailure loginFailure(String loginId, String errorId, HttpServletRequest request) throws PersistenceException {
-		LoginFailure loginFailure = new LoginFailure(loginId, "", "", errorId, request.getHeader("host"), request.getHeader("User-Agent"),
-				request.getHeader("User-Agent"), 0.0, 0.0);
+	private LoginFailure loginFailure(String loginId, String errorId, HttpServletRequest request) throws PersistenceFailureException {
+		LoginFailure loginFailure = new LoginFailure(loginId, "", request.getSession().getId(), errorId, request.getHeader("host"),
+				request.getHeader("User-Agent"), request.getHeader("User-Agent"), 0.0, 0.0);
 		AuditDetails auditDetails = new AuditDetails("", new Date(System.currentTimeMillis()), "", new Date(System.currentTimeMillis()));
 		loginFailure.setAuditDetails(auditDetails);
-
 		loginFailureRepo.save(loginFailure);
-
 		return loginFailure;
 
 	}
 
-	private AppSession createAppSessionId(AuthenticateResponse authResp) throws PersistenceException {
+	private AppSession createAppSessionId(AuthenticateResponse authResp) throws PersistenceFailureException {
 		AppSession appSession = new AppSession();
 		appSession.setAppData("AppData");
 		appSession.setIsActive(true);

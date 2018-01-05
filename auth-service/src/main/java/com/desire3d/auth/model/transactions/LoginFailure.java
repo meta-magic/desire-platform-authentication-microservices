@@ -7,6 +7,8 @@ import javax.jdo.annotations.Embedded;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -21,33 +23,50 @@ public class LoginFailure implements Serializable, CommonValidator {
 	private String loginFailureUUID;
 
 	@Persistent
+	@NotNull(message = "Login Id should not be null")
+	@Size(min = 1, max = 128, message = "Login Id must be between 1 and 128 characters")
 	private String loginId;
 
 	@Persistent
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
-	private String appSessionId;
+	@NotNull(message = "AppServer SessionId should not be null")
+	@Size(min = 1, max = 128, message = "AppServer SessionId must be between 1 and 128 characters")
+	private String appServerSessionId;
 
 	@Persistent
+	@NotNull(message = "Login errorId should not be null")
+	@Size(min = 1, max = 128, message = "Login errorId must be between 1 and 128 characters")
 	private String loginErrorId;
 
 	@Persistent
+	@NotNull(message = "Ip Address should not be null")
+	@Size(min = 1, max = 128, message = "Ip Address must be between 1 and 128 characters")
 	private String ipAddress;
 
 	@Persistent
+	@NotNull(message = "Browser should not be null")
+	@Size(min = 1, max = 128, message = "Browser must be between 1 and 128 characters")
 	private String browser;
 
 	@Persistent
+	@NotNull(message = "User Agent should not be null")
+	@Size(min = 1, max = 128, message = "User Agent must be between 1 and 128 characters")
 	private String userAgent;
 
 	@Persistent
+	@NotNull(message = "Latitude should not be null")
 	private Double latitude;
 
 	@Persistent
+	@NotNull(message = "Longitude should not be null")
 	private Double longitude;
 
 	@Persistent
+	@NotNull(message = "Active Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),
@@ -60,13 +79,13 @@ public class LoginFailure implements Serializable, CommonValidator {
 
 	}
 
-	public LoginFailure(String loginId, String mteid, String appSessionId, String loginErrorId, String ipAddress, String browser, String userAgent,
+	public LoginFailure(String loginId, String mteid, String appServerSessionId, String loginErrorId, String ipAddress, String browser, String userAgent,
 			Double latitude, Double longitude) {
 		super();
 
 		this.loginId = loginId;
 		this.mteid = mteid;
-		this.appSessionId = appSessionId;
+		this.appServerSessionId = appServerSessionId;
 		this.loginErrorId = loginErrorId;
 		this.ipAddress = ipAddress;
 		this.browser = browser;
@@ -91,12 +110,12 @@ public class LoginFailure implements Serializable, CommonValidator {
 		this.loginId = loginId;
 	}
 
-	public String getAppSessionId() {
-		return appSessionId;
+	public String getAppServerSessionId() {
+		return appServerSessionId;
 	}
 
-	public void setAppSessionId(String appSessionId) {
-		this.appSessionId = appSessionId;
+	public void setAppServerSessionId(String appServerSessionId) {
+		this.appServerSessionId = appServerSessionId;
 	}
 
 	public String getLoginErrorId() {

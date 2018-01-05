@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Embedded;
+import javax.jdo.annotations.ForeignKey;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -21,30 +22,46 @@ public class AppState implements Serializable, CommonValidator {
 	private String appStateUUID;
 
 	@Persistent
+	//	@NotNull(message = "mteid should not be null")
+	//	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
+	@ForeignKey
+	//	@NotNull(message = "loginUUID should not be null")
+	//	@Size(min = 1, max = 128, message = "loginUUID must be between 1 and 128 characters")
 	private String loginUUID;
 
 	@Persistent
+	@ForeignKey
+	//	@NotNull(message = "appSessionId should not be null")
+	//	@Size(min = 1, max = 128, message = "appSessionId must be between 1 and 128 characters")
 	private String appSessionId;
 
 	@Persistent
+	//	@NotNull(message = "tabId should not be null")
 	private Integer tabId;
 
 	@Persistent
+	//	@NotNull(message = "tabData should not be null")
+	//	@Size(min = 1, max = 10240, message = "tabData must be between 1 and 10240 characters")
 	private String tabData;
 
 	@Persistent
+	//	@NotNull(message = "isTabActive should not be null")
 	private Boolean isTabActive;
 
 	@Persistent
+	//	@NotNull(message = "userAgent should not be null")
+	//	@Size(min = 1, max = 128, message = "userAgent must be between 1 and 128 characters")
 	private String userAgent;
 
 	@Persistent
+	//	@NotNull(message = "latitude should not be null")
 	private Double latitude;
 
 	@Persistent
+	//	@NotNull(message = "longitude should not be null")
 	private Double longitude;
 
 	@Persistent

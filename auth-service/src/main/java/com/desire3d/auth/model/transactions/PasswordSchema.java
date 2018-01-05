@@ -9,6 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -23,19 +24,23 @@ public class PasswordSchema implements Serializable, CommonValidator {
 	private String passwordUUID;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
 	@ForeignKey
-	@NotNull
+	@NotNull(message = "userUUID should not be null")
+	@Size(min = 1, max = 128, message = "userUUID must be between 1 and 128 characters")
 	private String userUUID;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "PasswordHash should not be null")
+	@Size(min = 1, max = 128, message = "PasswordHash must be between 1 and 128 characters")
 	private String passwordHash;
 
 	@Persistent
+	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

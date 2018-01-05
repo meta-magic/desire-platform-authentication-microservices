@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class LoginResponseDto implements Serializable {
 
+	private static final long serialVersionUID = 6695256963712013952L;
+
 	private String appSessionId;
 
 	private Boolean firstTimeLogin;
@@ -16,17 +18,14 @@ public class LoginResponseDto implements Serializable {
 
 	private String tokenid;
 
-	private PersonProfileDto profile;
-
-	public LoginResponseDto(String appSessionId, Boolean firstTimeLogin, Integer accountBlocked, Boolean accountExpired, Boolean changePassword, String tokenid,
-			PersonProfileDto profile) {
+	public LoginResponseDto(String appSessionId, Boolean firstTimeLogin, Integer accountBlocked, Boolean accountExpired, Boolean changePassword,
+			String tokenid) {
 		super();
 		this.appSessionId = appSessionId;
 		this.firstTimeLogin = firstTimeLogin;
 		this.accountBlocked = accountBlocked;
 		this.accountExpired = accountExpired;
 		this.changePassword = changePassword;
-		this.profile = profile;
 		this.tokenid = tokenid;
 	}
 
@@ -70,26 +69,12 @@ public class LoginResponseDto implements Serializable {
 		this.changePassword = changePassword;
 	}
 
-	public PersonProfileDto getProfile() {
-		return profile;
-	}
-
-	public void setProfile(PersonProfileDto profile) {
-		this.profile = profile;
-	}
-
 	public String getTokenid() {
 		return tokenid;
 	}
 
 	public void setTokenid(String tokenid) {
 		this.tokenid = tokenid;
-	}
-
-	@Override
-	public String toString() {
-		return "LoginResponseDto [appSessionId=" + appSessionId + ", firstTimeLogin=" + firstTimeLogin + ", accountBlocked=" + accountBlocked
-				+ ", accountExpired=" + accountExpired + ", changePassword=" + changePassword + ", tokenId=" + tokenid + "]";
 	}
 
 }

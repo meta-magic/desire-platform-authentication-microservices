@@ -8,6 +8,8 @@ import javax.jdo.annotations.ForeignKey;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Unique;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
@@ -23,21 +25,29 @@ public class AuthSchema implements Serializable, CommonValidator {
 	private String loginUUID;
 
 	@Persistent
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
-	@Size(min = 1, max = 50, message = "loginId should not be greater than 50 characters")
 	@Persistent
+	@Unique
+	@NotNull(message = "LoginId id should not be null")
+	@Size(min = 4, max = 128, message = "Login id must be between 4 and 128 characters")
 	private String loginId;
 
-	@ForeignKey
 	@Persistent
+	@ForeignKey
+	@NotNull(message = "userUUID should not be null")
+	@Size(min = 1, max = 128, message = "userUUID must be between 1 and 128 characters")
 	private String userUUID;
 
 	@Persistent
-	// @ForeignKey
+	@NotNull(message = "personUUID should not be null")
+	@Size(min = 1, max = 128, message = "personUUID must be between 1 and 128 characters")
 	private String personUUID;
 
 	@Persistent
+	@NotNull(message = "isActive should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

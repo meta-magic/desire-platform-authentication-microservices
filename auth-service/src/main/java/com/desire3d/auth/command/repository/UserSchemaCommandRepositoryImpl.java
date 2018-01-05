@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.desire3d.auth.exceptions.PersistenceException;
+import com.desire3d.auth.exceptions.PersistenceFailureException;
 import com.desire3d.auth.fw.command.repository.UserSchemaCommandRepository;
 import com.desire3d.auth.model.transactions.UserSchema;
 import com.desire3d.auth.utils.ExceptionID;
@@ -25,7 +25,7 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public UserSchema save(UserSchema userSchema) throws PersistenceException {
+	public UserSchema save(UserSchema userSchema) throws PersistenceFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
@@ -37,7 +37,7 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
+			throw new PersistenceFailureException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

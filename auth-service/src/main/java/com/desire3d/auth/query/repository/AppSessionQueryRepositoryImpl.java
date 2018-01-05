@@ -9,7 +9,7 @@ import javax.jdo.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.fw.query.repository.AppSessionQueryRepository;
 import com.desire3d.auth.model.transactions.AppSession;
 import com.desire3d.auth.utils.ExceptionID;
@@ -21,7 +21,7 @@ public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository 
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public AppSession findAppSessionByAppSessionIdAndIsActive(String appSessionId, Boolean isActive) throws DataNotFoundException {
+	public AppSession findAppSessionByAppSessionIdAndIsActive(String appSessionId, Boolean isActive) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		AppSession appSession = null;
 		try {
@@ -31,16 +31,16 @@ public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository 
 			@SuppressWarnings("unchecked")
 			List<AppSession> appSessions = ((List<AppSession>) query.execute(appSessionId, true));
 			if (appSessions.isEmpty()) {
-				throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE);
+				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
 				appSession = appSessions.get(0);
 			}
 		} catch (Throwable e) {
-			if (e instanceof DataNotFoundException) {
+			if (e instanceof DataRetrievalFailureException) {
 				throw e;
 			} else {
 				e.printStackTrace();
-				throw new DataNotFoundException(e.getMessage(), e);
+				throw new DataRetrievalFailureException(e.getMessage(), e);
 			}
 		} finally {
 			pm.close();

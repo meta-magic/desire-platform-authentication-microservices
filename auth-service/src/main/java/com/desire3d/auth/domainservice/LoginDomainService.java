@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
-import com.desire3d.auth.exceptions.PersistenceException;
+import com.desire3d.auth.exceptions.PersistenceFailureException;
 import com.desire3d.auth.fw.command.repository.AuthSchemaCommandRepository;
 import com.desire3d.auth.fw.command.repository.PasswordSchemaCommandRepository;
 import com.desire3d.auth.fw.command.repository.UserSchemaCommandRepository;
@@ -59,9 +59,9 @@ public final class LoginDomainService {
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @return {@link UserSchema}
-	 * @throws PersistenceException 
+	 * @throws PersistenceFailureException 
 	 * */
-	private UserSchema createUserSchema(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceException {
+	private UserSchema createUserSchema(final UserCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) throws PersistenceFailureException {
 		UserSchema userSchema = new UserSchema();
 		userSchema.setFirstTimeLogin(true);
 		userSchema.setUserType("1");
@@ -75,10 +75,10 @@ public final class LoginDomainService {
 	 * 
 	 * @param event an {@link UserCreatedEvent} consumed from kafka to process creation of user login
 	 * @return saved {@link AuthSchema} 
-	 * @throws PersistenceException 
+	 * @throws PersistenceFailureException 
 	 * */
 	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema, final LoginInfoHelperBean loginInfoHelperBean)
-			throws PersistenceException {
+			throws PersistenceFailureException {
 		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getLoginId(), userSchema.getUserUUID(), event.getPersonUUID());
 		authSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		return authSchemaCommandRepository.save(authSchema);

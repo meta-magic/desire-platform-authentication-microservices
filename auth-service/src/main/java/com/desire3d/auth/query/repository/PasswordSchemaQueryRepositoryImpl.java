@@ -9,7 +9,7 @@ import javax.jdo.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.fw.query.repository.PasswordSchemaQueryRepository;
 import com.desire3d.auth.model.transactions.PasswordSchema;
 import com.desire3d.auth.utils.ExceptionID;
@@ -20,7 +20,7 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public PasswordSchema findPasswordSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException {
+	public PasswordSchema findPasswordSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		PasswordSchema passwordSchema = null;
 		try {
@@ -30,16 +30,16 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 			@SuppressWarnings("unchecked")
 			List<PasswordSchema> passwordSchemas = ((List<PasswordSchema>) query.execute(userUUID, true));
 			if (passwordSchemas.isEmpty()) {
-				throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE);
+				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
 				passwordSchema = passwordSchemas.get(0);
 			}
 		} catch (Throwable e) {
-			if (e instanceof DataNotFoundException) {
+			if (e instanceof DataRetrievalFailureException) {
 				throw e;
 			} else {
 				e.printStackTrace();
-				throw new DataNotFoundException(e.getMessage(), e);
+				throw new DataRetrievalFailureException(e.getMessage(), e);
 			}
 		} finally {
 			pm.close();
@@ -49,7 +49,7 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<PasswordSchema> findByIsActive(Boolean isActive) throws DataNotFoundException {
+	public List<PasswordSchema> findByIsActive(Boolean isActive) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		List<PasswordSchema> passwordSchemas = null;
 		try {
@@ -58,7 +58,7 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 			passwordSchemas = ((List<PasswordSchema>) query.execute(true));
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE, e);
+			throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE, e);
 		} finally {
 			pm.close();
 		}

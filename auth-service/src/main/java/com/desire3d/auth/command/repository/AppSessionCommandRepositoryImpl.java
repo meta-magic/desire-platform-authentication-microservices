@@ -9,7 +9,7 @@ import javax.jdo.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.desire3d.auth.exceptions.PersistenceException;
+import com.desire3d.auth.exceptions.PersistenceFailureException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.model.transactions.AppSession;
@@ -22,7 +22,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public AppSession update(AppSession appSession) throws PersistenceException {
+	public AppSession update(AppSession appSession) throws PersistenceFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
@@ -47,7 +47,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(ExceptionID.ERROR_UPDATE, e);
+			throw new PersistenceFailureException(ExceptionID.ERROR_UPDATE, e);
 
 		} finally {
 			// pm.close();
@@ -56,7 +56,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 	}
 
 	@Override
-	public AppSession save(AppSession appSession) throws PersistenceException {
+	public AppSession save(AppSession appSession) throws PersistenceFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
@@ -68,7 +68,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceException(ExceptionID.ERROR_PERSISTENCE, e);
+			throw new PersistenceFailureException(ExceptionID.ERROR_PERSISTENCE, e);
 		} finally {
 			pm.close();
 		}

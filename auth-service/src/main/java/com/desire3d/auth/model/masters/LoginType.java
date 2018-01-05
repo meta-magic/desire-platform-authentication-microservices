@@ -5,11 +5,11 @@ import java.io.Serializable;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Embedded;
 import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.Index;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -21,23 +21,30 @@ public class LoginType implements Serializable, CommonValidator {
 
 	@Persistent(valueStrategy = IdGeneratorStrategy.INCREMENT)
 	@PrimaryKey
-	@Index
 	private Integer loginTypeId;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "Logintype label should not be null")
+	@Size(min = 1, max = 128, message = "LoginType label must be between 1 and 128 characters")
 	private String label;
 
 	@Persistent
+	@NotNull(message = "Logintype description should not be null")
+	@Size(min = 1, max = 128, message = "LoginType description must be between 1 and 128 characters")
 	private String description;
 
 	@Persistent
+	@NotNull(message = "Logintype icon should not be null")
+	@Size(min = 1, max = 128, message = "LoginType icon must be between 1 and 128 characters")
 	private String icon;
 
 	@Persistent
+	@NotNull(message = "Logintype help should not be null")
+	@Size(min = 1, max = 128, message = "LoginType help must be between 1 and 128 characters")
 	private String help;
 
 	@Persistent
+	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

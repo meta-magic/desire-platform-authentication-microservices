@@ -9,6 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -23,47 +24,55 @@ public class LoginHistory implements Serializable, CommonValidator {
 	private String loginHistoryUUID;
 
 	@Persistent
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "userUUID should not be null")
+	@Size(min = 1, max = 128, message = "userUUID must be between 1 and 128 characters")
 	private String userUUID;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "AppSessionId should not be null")
+	@Size(min = 1, max = 128, message = "AppSessionId must be between 1 and 128 characters")
 	private String appSessionId;
 
 	@Persistent
 	@ForeignKey
-	@NotNull
+	@NotNull(message = "Login Type should not be null")
 	private Integer loginTypeId;
 
 	@Persistent
 	@ForeignKey
-	@NotNull
+	@NotNull(message = "Login Form Factor should not be null")
 	private Integer loginFormFactorId;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String ipAddress;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "Ip Address should not be null")
+	@Size(min = 1, max = 128, message = "Ip Address must be between 1 and 128 characters")
 	private String browser;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "User Agent should not be null")
+	@Size(min = 1, max = 128, message = "User Agent must be between 1 and 128 characters")
 	private String userAgent;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "Latitude should not be null")
 	private Double latitude;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "Longitude should not be null")
 	private Double longitude;
 
 	@Persistent
+	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

@@ -4,11 +4,11 @@ import java.io.Serializable;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Embedded;
-import javax.jdo.annotations.Index;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -19,23 +19,26 @@ public class PasswordHistory implements Serializable, CommonValidator {
 	private static final long serialVersionUID = 1476749523123452522L;
 
 	@Persistent(customValueStrategy = "uuid")
-	@Index
 	@PrimaryKey
 	private String passwordHistoryUUID;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "userUUID should not be null")
+	@Size(min = 1, max = 128, message = "userUUID must be between 1 and 128 characters")
 	private String userUUID;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "PasswordHash should not be null")
+	@Size(min = 1, max = 128, message = "PasswordHash must be between 1 and 128 characters")
 	private String passwordHash;
 
 	@Persistent
+	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

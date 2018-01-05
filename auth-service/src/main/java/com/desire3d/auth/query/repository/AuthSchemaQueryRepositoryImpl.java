@@ -9,7 +9,7 @@ import javax.jdo.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.fw.query.repository.AuthSchemaQueryRepository;
 import com.desire3d.auth.model.transactions.AuthSchema;
 import com.desire3d.auth.utils.ExceptionID;
@@ -22,7 +22,7 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AuthSchema findAuthSchemaByLoginIdAndIsActive(String loginId, Boolean isActive) throws DataNotFoundException {
+	public AuthSchema findAuthSchemaByLoginIdAndIsActive(String loginId, Boolean isActive) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		AuthSchema schema = null;
 		try {
@@ -30,16 +30,16 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 			query.setFilter("this.loginId==:loginId && this.isActive==:isActive");
 			List<AuthSchema> schemas = ((List<AuthSchema>) query.execute(loginId, true));
 			if (schemas.isEmpty()) {
-				throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE);
+				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
 				schema = schemas.get(0);
 			}
 		} catch (Throwable e) {
-			if (e instanceof DataNotFoundException) {
+			if (e instanceof DataRetrievalFailureException) {
 				throw e;
 			} else {
 				e.printStackTrace();
-				throw new DataNotFoundException(e.getMessage(), e);
+				throw new DataRetrievalFailureException(e.getMessage(), e);
 			}
 		} finally {
 			//			pm.close();
@@ -49,7 +49,7 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AuthSchema> findByLoginIdAndIsActive(String loginId, boolean isActive) throws DataNotFoundException {
+	public List<AuthSchema> findByLoginIdAndIsActive(String loginId, boolean isActive) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		List<AuthSchema> schemas = null;
 		try {
@@ -58,7 +58,7 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 			schemas = ((List<AuthSchema>) query.execute(loginId, true));
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE, e);
+			throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE, e);
 		} finally {
 			pm.close();
 		}

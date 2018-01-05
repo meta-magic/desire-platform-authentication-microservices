@@ -9,6 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
@@ -20,34 +21,36 @@ public class UserSchema implements Serializable, CommonValidator {
 
 	@PrimaryKey
 	@Persistent(customValueStrategy = "uuid")
-	@Index
 	private String userUUID;
 
-	@NotNull
 	@Persistent
+	@NotNull(message = "mteid should not be null")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "User Type should not be null")
+	@Size(min = 1, max = 128, message = "User Type must be between 1 and 128 characters")
 	private String userType;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "First Time Login should not be null")
 	private Boolean firstTimeLogin = false;
 
 	@Persistent
-	@NotNull
+	@NotNull(message = "Account Blocked should not be null")
 	private Integer accountBlocked = 0;
 
-	@NotNull
 	@Persistent
+	@NotNull(message = "Account Expired should not be null")	
 	private Boolean accountExpired = false;
 
 	@Persistent
+	@NotNull(message = "Change Password should not be null")
 	private Boolean changePassword = false;
 
-	@Index
 	@Persistent
+	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),

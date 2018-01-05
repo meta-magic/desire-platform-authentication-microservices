@@ -9,7 +9,7 @@ import javax.jdo.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.desire3d.auth.exceptions.DataNotFoundException;
+import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.fw.query.repository.UserSchemaQueryRepository;
 import com.desire3d.auth.model.transactions.UserSchema;
 
@@ -47,7 +47,7 @@ public class UserSchemaQueryRepositoryImpl implements UserSchemaQueryRepository 
 	}*/
 
 	@Override
-	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException {
+	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Query query = pm.newQuery(UserSchema.class);
 		query.setFilter("this.userUUID==:userUUID && isActive==:true");
@@ -55,7 +55,7 @@ public class UserSchemaQueryRepositoryImpl implements UserSchemaQueryRepository 
 		@SuppressWarnings("unchecked")
 		List<UserSchema> userSchemas = ((List<UserSchema>) query.execute(userUUID, true));
 		if (userSchemas.isEmpty()) {
-			throw new DataNotFoundException("Data not found exception %s");
+			throw new DataRetrievalFailureException("Data not found exception %s");
 		} else {
 			return userSchemas.get(0);
 		}
