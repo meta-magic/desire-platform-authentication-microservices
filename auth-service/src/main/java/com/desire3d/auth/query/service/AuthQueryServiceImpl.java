@@ -29,6 +29,7 @@ import com.desire3d.auth.model.transactions.LoginFailure;
 import com.desire3d.auth.model.transactions.LoginHistory;
 import com.desire3d.auth.model.transactions.PasswordSchema;
 import com.desire3d.auth.model.transactions.UserSchema;
+import com.desire3d.auth.utils.Constants;
 import com.desire3d.auth.utils.ExceptionID;
 
 @Service
@@ -72,18 +73,18 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	}
 
 	@Override
-	public LoginResponseDto authenticate(String loginId, String password, HttpServletRequest request) throws Throwable {
+	public LoginResponseDto authenticate(String loginId, String password, Double latitude, Double longitude, HttpServletRequest request) throws Throwable {
 		if (loginId == null || password == null) {
 			throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
 		try {
 			String encodedPassword = loginDomainService.createPasswordHash(password);
-			AuthenticateResponse authResp = this.processLoginRequest(loginId, encodedPassword);
+			AuthenticateResponse authResp = this.processLoginRequest(loginId, encodedPassword, latitude, longitude);
 
 			AppSession appSession = this.createAppSessionId(authResp);
 			// CREATE LOGIN HISTORY
-			loginHistory(authResp, appSession, request);
+			loginHistory(authResp, appSession, request, latitude, longitude);
 			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getLoginUUID(),
 					authResp.getAuthSchema().getUserUUID(), authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId());
 
@@ -94,16 +95,24 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			System.out.println("loginRespose********" + loginResponse);
 			return loginResponse;
 		} catch (Throwable e) {
-			this.loginFailure(loginId, ((BaseException) e).getMessageId(), request);
+			this.loginFailure(loginId, ((BaseException) e).getMessageId(), longitude, longitude, request);
 			throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
 	}
 
-	// AppSessionId
-	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession, HttpServletRequest request) throws PersistenceFailureException {
+	//SAVING LOGIN HISTORY	
+	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession, HttpServletRequest request, Double latitude, Double longitude)
+			throws PersistenceFailureException {
+		int loginformfactor = 0;
+		if (request.getHeader("User-Agent").indexOf("Mobile") != -1) {
+			loginformfactor = Constants.MOBILE_AGENT;
+		} else {
+			loginformfactor = Constants.DESKTOP_AGENT;
+		}
 		LoginHistory loginHistory = new LoginHistory(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getUserUUID(), appSession.getAppSessionId(),
-				1, 1, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), 0.0, 0.0);
+				1, loginformfactor, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude, longitude);
+
 		// SET HELPER CLASS DATA
 		loginHistory.setIsActive(true);
 		if (authResp.getUserSchema().getAuditDetails() != null) {
@@ -116,9 +125,10 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		return loginHistory;
 	}
 
-	private LoginFailure loginFailure(String loginId, String errorId, HttpServletRequest request) throws PersistenceFailureException {
+	private LoginFailure loginFailure(String loginId, String errorId, Double latitude, Double longitude, HttpServletRequest request)
+			throws PersistenceFailureException {
 		LoginFailure loginFailure = new LoginFailure(loginId, "", request.getSession().getId(), errorId, request.getHeader("host"),
-				request.getHeader("User-Agent"), request.getHeader("User-Agent"), 0.0, 0.0);
+				request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude, longitude);
 		AuditDetails auditDetails = new AuditDetails("", new Date(System.currentTimeMillis()), "", new Date(System.currentTimeMillis()));
 		loginFailure.setAuditDetails(auditDetails);
 		loginFailureRepo.save(loginFailure);
@@ -140,7 +150,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	}
 
 	@SuppressWarnings("null")
-	private AuthenticateResponse processLoginRequest(String loginId, String password) throws Throwable {
+	private AuthenticateResponse processLoginRequest(String loginId, String password, Double latitude, Double longitude) throws Throwable {
 
 		if (loginId == null || password == null) {
 			throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);

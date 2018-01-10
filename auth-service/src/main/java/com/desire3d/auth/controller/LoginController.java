@@ -9,12 +9,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
+import com.desire3d.auth.dto.LogoutAuthentication;
 import com.desire3d.auth.fw.query.service.LoginQueryService;
 import com.desire3d.auth.utils.ExceptionID;
 
@@ -29,12 +31,13 @@ public class LoginController {
 	private LoginQueryService loginService;
 
 	@RequestMapping(value = "/logout", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request) throws Throwable {
+	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request, @RequestBody LogoutAuthentication logoutAuthentication)
+			throws Throwable {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		Single<Boolean> single = Single.just(loginService.userLogout(request));
+		Single<Boolean> single = Single.just(loginService.userLogout(logoutAuthentication.getLatitude(), logoutAuthentication.getLongitude(), request));
 		single.subscribe(isLogout -> {
 			if (isLogout) {
 				ResponseBean responseBean = new ResponseBean(true, ExceptionID.USER_LOGOUT, isLogout);

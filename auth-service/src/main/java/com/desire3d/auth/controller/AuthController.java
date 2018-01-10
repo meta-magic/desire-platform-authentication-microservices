@@ -59,7 +59,8 @@ public class AuthController {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		Single<LoginResponseDto> single = Single.just(authService.authenticate(loginAuthentication.getLoginId(), loginAuthentication.getPassword(), request));
+		Single<LoginResponseDto> single = Single.just(authService.authenticate(loginAuthentication.getLoginId(), loginAuthentication.getPassword(),
+				loginAuthentication.getLatitude(), loginAuthentication.getLongitude(), request));
 		single.subscribe(loginResponse -> {
 			if (loginResponse != null) {
 				ResponseBean responseBean = new ResponseBean(true, ExceptionID.VALID_USERCREDENTIALS, loginResponse);

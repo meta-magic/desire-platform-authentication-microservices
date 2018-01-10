@@ -30,11 +30,9 @@ public class AuthController extends BaseComponent {
 	@HystrixCommand(fallbackMethod = "validateLoginIdFallBack")
 	@RequestMapping(value = "/validateloginid", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> validateLoginId(HttpServletRequest request, @RequestBody Object object) {
-		System.out.println("*****auth-client-service AuthController:validateLoginId call reached*****");
 		HttpHeaders headers = this.createHeaders(request);
 		HttpEntity<?> requestEntity = new HttpEntity<>(object, headers);
-		return reactiveService.callService("/auth/validateloginid", HttpMethod.POST, requestEntity);// needs to change
-																									// to webclient
+		return reactiveService.callService("/auth/validateloginid", HttpMethod.POST, requestEntity);
 	}
 
 	@HystrixCommand(fallbackMethod = "authenticateFallBack")
@@ -52,7 +50,7 @@ public class AuthController extends BaseComponent {
 		HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 		return reactiveService.callService("/auth/logout", HttpMethod.POST, requestEntity);
 	}
-	
+
 	@HystrixCommand(fallbackMethod = "validateLoginIdFallBack")
 	@RequestMapping(value = "/checkLoginIdAvailablility", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> checkLoginIdAvailablility(HttpServletRequest request, @RequestBody Object object) {

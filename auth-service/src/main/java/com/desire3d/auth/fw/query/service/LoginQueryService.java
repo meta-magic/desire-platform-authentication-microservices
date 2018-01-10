@@ -4,6 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface LoginQueryService {
 
-	public boolean userLogout(HttpServletRequest request) throws Throwable;
+	public boolean userLogout(Double latitude, Double longitude, HttpServletRequest request) throws Throwable;
 
 }

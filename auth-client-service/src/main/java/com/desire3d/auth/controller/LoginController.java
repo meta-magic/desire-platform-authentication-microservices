@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,13 +29,13 @@ public class LoginController extends BaseComponent {
 
 	@HystrixCommand(fallbackMethod = "logoutFallBack")
 	@RequestMapping(value = "/logout", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request) {
+	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request, @RequestBody Object object) {
 		HttpHeaders headers = this.createHeaders(request);
-		HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+		HttpEntity<?> requestEntity = new HttpEntity<>(object, headers);
 		return reactiveService.callService("/login/logout", HttpMethod.POST, requestEntity);
 	}
 
-	DeferredResult<ResponseEntity<ResponseBean>> logoutFallBack(HttpServletRequest request) {
+	DeferredResult<ResponseEntity<ResponseBean>> logoutFallBack(HttpServletRequest request, @RequestBody Object object) {
 		return reactiveService.fallback(FallbackMessage.message, FallbackMessage.logoutMessageId);
 	}
 }

@@ -8,6 +8,6 @@ public interface AuthQueryService {
 
 	public boolean validateLoginId(String loginId) throws Throwable;
 
-	public LoginResponseDto authenticate(String loginId, String password, HttpServletRequest request) throws Throwable;
+	public LoginResponseDto authenticate(String loginId, String password, Double latitude, Double longitude, HttpServletRequest request) throws Throwable;
 
 }

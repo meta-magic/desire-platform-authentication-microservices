@@ -17,6 +17,7 @@ import com.desire3d.auth.fw.query.service.LoginQueryService;
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.model.transactions.AppSession;
 import com.desire3d.auth.model.transactions.LoginHistory;
+import com.desire3d.auth.utils.Constants;
 import com.desire3d.auth.utils.ExceptionID;
 
 @Service
@@ -36,7 +37,7 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 	private LoginInfoHelperBean loginInfoHelperBean;
 
 	@Override
-	public boolean userLogout(HttpServletRequest request) throws Throwable {
+	public boolean userLogout(Double latitude, Double longitude, HttpServletRequest request) throws Throwable {
 
 		String appSessionId = loginInfoHelperBean.getAppSessionId();
 		String userId = loginInfoHelperBean.getUserId();
@@ -50,8 +51,14 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 			appSessionRepo.update(appSession);
 
 			// ADD REAL DATA FROM REQUEST
+			int loginformfactor = 0;
+			if (request.getHeader("User-Agent").indexOf("Mobile") != -1) {
+				loginformfactor = Constants.MOBILE_AGENT;
+			} else {
+				loginformfactor = Constants.DESKTOP_AGENT;
+			}
 			LoginHistory loginHistory = new LoginHistory(loginInfoHelperBean.getMteid(), loginInfoHelperBean.getUserId(), loginInfoHelperBean.getAppSessionId(),
-					2, 1, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), 0.0, 0.0);
+					2, loginformfactor, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude, longitude);
 			loginHistory.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis()),
 					loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
 			loginHistoryRepo.save(loginHistory);
