@@ -20,5 +20,9 @@ public interface Constants {
 	public final static Integer SMARTWATCH_AGENT = 4;
 
 	public final static Integer OTHER_AGENT = 5;
+	
+	public final static Integer PASSWORDHISTORY_LIMIT = 3;
+
+	
 
 }
