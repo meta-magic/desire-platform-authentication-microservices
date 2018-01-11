@@ -9,6 +9,8 @@ public interface ExceptionID {
 	public final String VALID_USERCREDENTIALS = "valid.user.credentials";
 	public final String LOGINID_AVAILABLE = "loginid.available";
 	public final String USER_LOGOUT = "user.logout";
+	public final String PASSWORD_CHANGED = "password.changed";
+
 
 	/** TOKEN RELATED ID'S */
 	public final String TOKEN_REQUIRED = "token.required";
@@ -23,6 +25,8 @@ public interface ExceptionID {
 	public final String ERROR_VALIDATION = "error.validation";
 
 	public final String INVALID_LOGINID = "invalid.loginid";
+	public final String INVALID_CURRENTPASSWORD = "invalid.currentpassword";
+	public final String USED_PASSWORD = "used.password";
 	public final String INVALID_USER_CREDENTIALS = "invalid.user.credentials";
 	public final String INVALID_LOGINID_ACCOUNTBLOCKEDOREXPIRED = "invalid.loginid.accountblockedorexpired";
 	public final String INVALID_USERSESSION = "invalid.usersession";

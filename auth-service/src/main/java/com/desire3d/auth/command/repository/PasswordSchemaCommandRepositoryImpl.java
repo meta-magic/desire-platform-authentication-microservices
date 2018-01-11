@@ -37,4 +37,24 @@ public class PasswordSchemaCommandRepositoryImpl implements PasswordSchemaComman
 		}
 		return passwordSchema;
 	}
+
+	@Override
+	public void update(PasswordSchema passwordSchema) throws PersistenceFailureException {
+
+		PersistenceManager pm = pmf.getPersistenceManager();
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			pm.makePersistent(passwordSchema);
+			tx.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			throw new PersistenceFailureException(ExceptionID.ERROR_UPDATE, e);
+		} finally {
+			pm.close();
+		}
+	}
 }

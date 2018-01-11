@@ -164,7 +164,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 				throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID_ACCOUNTBLOCKEDOREXPIRED);
 			}
 
-			PasswordSchema passwordSchema = passwordRepo.findPasswordSchemaByUserUUIDAndIsActive(auth.getUserUUID(), true);
+			PasswordSchema passwordSchema = passwordRepo.findByUserUUID(auth.getUserUUID());
 
 			/*Iterable<PasswordSchema> passwordSchemas = passwordRepo.findByIsActive(true);
 			for (PasswordSchema passwordSchema2 : passwordSchemas) {

@@ -2,19 +2,22 @@ package com.desire3d.auth.model.masters;
 
 import java.io.Serializable;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.Embedded;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Version;
+import javax.jdo.annotations.VersionStrategy;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.desire3d.auth.model.AuditDetails;
+import com.desire3d.auth.model.MasterAuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
 
-@PersistenceCapable(table = "loginformfactor")
+@PersistenceCapable(table = "loginformfactor", detachable = "true")
+@Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
+		@Extension(vendorName = "datanucleus", key = "field-name", value = "version") })
 public class LoginFormFactor implements Serializable, CommonValidator {
 
 	private static final long serialVersionUID = 1L;
@@ -47,10 +50,11 @@ public class LoginFormFactor implements Serializable, CommonValidator {
 	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
-	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),
-			@Persistent(name = "createdBy", columns = @Column(name = "createdBy")),
-			@Persistent(name = "createdTime", columns = @Column(name = "createdTime")) })
-	private AuditDetails auditDetails;
+	@Persistent
+	private Long version;
+
+	@Persistent(defaultFetchGroup = "true")
+	private MasterAuditDetails auditDetails;
 
 	public LoginFormFactor() {
 
@@ -112,11 +116,12 @@ public class LoginFormFactor implements Serializable, CommonValidator {
 		this.description = description;
 	}
 
-	public AuditDetails getAuditDetails() {
+	public MasterAuditDetails getAuditDetails() {
 		return auditDetails;
 	}
 
-	public void setAuditDetails(AuditDetails auditDetails) {
+	public void setAuditDetails(MasterAuditDetails auditDetails) {
 		this.auditDetails = auditDetails;
 	}
+
 }

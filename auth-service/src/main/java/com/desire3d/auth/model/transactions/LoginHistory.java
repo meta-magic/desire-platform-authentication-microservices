@@ -2,19 +2,22 @@ package com.desire3d.auth.model.transactions;
 
 import java.io.Serializable;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.Embedded;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.ForeignKey;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Version;
+import javax.jdo.annotations.VersionStrategy;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
 
-@PersistenceCapable(table = "loginhistory")
+@PersistenceCapable(table = "loginhistory", detachable = "true")
+@Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
+		@Extension(vendorName = "datanucleus", key = "field-name", value = "version") })
 public class LoginHistory implements Serializable, CommonValidator {
 
 	private static final long serialVersionUID = 734183511634030663L;
@@ -75,10 +78,10 @@ public class LoginHistory implements Serializable, CommonValidator {
 	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
-	@Embedded(members = { @Persistent(name = "version", columns = @Column(name = "version")),
-			@Persistent(name = "createdBy", columns = @Column(name = "createdBy")), @Persistent(name = "createdTime", columns = @Column(name = "createdTime")),
-			@Persistent(name = "updatedBy", columns = @Column(name = "updatedBy")),
-			@Persistent(name = "updatedTime", columns = @Column(name = "updatedTime")) })
+	@Persistent
+	private Long version;
+
+	@Persistent(defaultFetchGroup = "true")
 	private AuditDetails auditDetails;
 
 	public LoginHistory() {

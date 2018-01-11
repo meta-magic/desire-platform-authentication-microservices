@@ -4,15 +4,10 @@ import java.util.Date;
 
 import javax.jdo.annotations.EmbeddedOnly;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Version;
-import javax.jdo.annotations.VersionStrategy;
 
-@PersistenceCapable
+@PersistenceCapable(detachable = "true")
 @EmbeddedOnly
-@Version(column = "version", strategy = VersionStrategy.VERSION_NUMBER)
 public class AuditDetails {
-
-	private Integer version;
 
 	private String createdBy;
 
@@ -40,14 +35,6 @@ public class AuditDetails {
 		this.createdTime = createdTime;
 		this.updatedBy = updatedBy;
 		this.updatedTime = updatedTime;
-	}
-
-	public Integer getVersion() {
-		return version;
-	}
-
-	public void setVersion(Integer version) {
-		this.version = version;
 	}
 
 	public String getCreatedBy() {

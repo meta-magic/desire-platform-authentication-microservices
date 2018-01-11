@@ -1,5 +1,6 @@
 package com.desire3d.auth.query.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
@@ -20,19 +21,19 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public PasswordSchema findPasswordSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataRetrievalFailureException {
+	public PasswordSchema findByUserUUID(String userUUID) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		PasswordSchema passwordSchema = null;
 		try {
-			Query query = pm.newQuery(PasswordSchema.class);
-			query.setFilter("this.userUUID==:userUUID && isActive==:true");
+			Query query = (pm.newQuery(PasswordSchema.class));
+			query.setFilter("this.userUUID==:userUUID && this.isActive==:isActive");
 
 			@SuppressWarnings("unchecked")
-			List<PasswordSchema> passwordSchemas = ((List<PasswordSchema>) query.execute(userUUID, true));
+			Collection<PasswordSchema> passwordSchemas = (Collection<PasswordSchema>) query.execute(userUUID, true);
 			if (passwordSchemas.isEmpty()) {
 				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
-				passwordSchema = passwordSchemas.get(0);
+				passwordSchema = pm.detachCopy(passwordSchemas.iterator().next());
 			}
 		} catch (Throwable e) {
 			if (e instanceof DataRetrievalFailureException) {
@@ -49,7 +50,7 @@ public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRep
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<PasswordSchema> findByIsActive(Boolean isActive) throws DataRetrievalFailureException {
+	public Collection<PasswordSchema> findAll() throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		List<PasswordSchema> passwordSchemas = null;
 		try {
