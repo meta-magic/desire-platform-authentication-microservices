@@ -66,7 +66,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		}
 		Collection<AuthSchema> auth = authSchemaQueryRepository.findByLoginId(loginId);
 		if (auth.isEmpty()) {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID);
+			return false;
 		} else {
 			return true;
 		}
