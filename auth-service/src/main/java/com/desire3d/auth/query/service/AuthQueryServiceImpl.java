@@ -1,7 +1,7 @@
 package com.desire3d.auth.query.service;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -64,9 +64,9 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		if (loginId == null) {
 			throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID);
 		}
-		List<AuthSchema> auth = authSchemaQueryRepository.findByLoginIdAndIsActive(loginId, true);
+		Collection<AuthSchema> auth = authSchemaQueryRepository.findByLoginId(loginId);
 		if (auth.isEmpty()) {
-			return false;
+			throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID);
 		} else {
 			return true;
 		}
@@ -83,7 +83,8 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			AuthenticateResponse authResp = this.processLoginRequest(loginId, encodedPassword, latitude, longitude);
 
 			AppSession appSession = this.createAppSessionId(authResp);
-			// CREATE LOGIN HISTORY
+			// CREATE LOGIN HISTORY			return false;
+
 			loginHistory(authResp, appSession, request, latitude, longitude);
 			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getLoginUUID(),
 					authResp.getAuthSchema().getUserUUID(), authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId());
@@ -157,7 +158,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		}
 
 		// UserSchema user = null;
-		AuthSchema auth = authSchemaQueryRepository.findAuthSchemaByLoginIdAndIsActive(loginId, true);
+		AuthSchema auth = authSchemaQueryRepository.findAuthSchemaByLoginId(loginId);
 		if (auth != null && auth.getUserUUID() != null) {
 			UserSchema user = userQRepo.findUserSchemaByUserUUIDAndIsActive(auth.getUserUUID(), true);
 			if (user.getAccountBlocked().equals(1) || user.isAccountExpired()) {

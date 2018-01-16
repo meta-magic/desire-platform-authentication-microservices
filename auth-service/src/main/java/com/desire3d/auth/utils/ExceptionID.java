@@ -10,16 +10,21 @@ public interface ExceptionID {
 	public final String LOGINID_AVAILABLE = "loginid.available";
 	public final String USER_LOGOUT = "user.logout";
 	public final String PASSWORD_CHANGED = "password.changed";
-
+	public final String RECOVERYTOKEN_SENT = "recoverytoken.sent";
+	public final String RECOVERYTOKEN_VALID = "recoverytoken.valid";
 
 	/** TOKEN RELATED ID'S */
 	public final String TOKEN_REQUIRED = "token.required";
 	public final String TOKEN_EXPIRED = "token.expired";
 	public final String TOKEN_INVALID = "token.invalid";
+	public final String TOKEN_EMPTY = "token.empty";
+	public final String RECOVERYTOKEN_REQUIRED = "recoverytoken.required";
+	public final String RECOVERYTOKEN_EXPIRED = "recoverytoken.expired";
+	public final String RECOVERYTOKEN_INVALID = "recoverytoken.invalid";
 
 	/** ERROR MESSAGE ID'S */
 	public final String ERROR_GLOBAL = "error.global";
-	public final String ERROR_PERSISTENCE = "error.persistence";
+	public final String ERROR_SAVE = "error.save";
 	public final String ERROR_UPDATE = "error.update";
 	public final String ERROR_RETRIEVE = "error.retrieve";
 	public final String ERROR_VALIDATION = "error.validation";

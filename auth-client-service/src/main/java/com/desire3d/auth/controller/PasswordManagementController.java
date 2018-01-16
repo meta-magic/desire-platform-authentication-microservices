@@ -21,21 +21,22 @@ import com.desire3d.auth.fw.service.ReactiveService;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
-@RequestMapping("/passwordManagement")
+@RequestMapping("/PasswordManagement")
 public class PasswordManagementController extends BaseComponent {
 
 	@Autowired
 	private ReactiveService reactiveService;
 
-	@HystrixCommand(fallbackMethod = "passwordManagementFallback")
+	@HystrixCommand(fallbackMethod = "changePasswordFallback")
 	@RequestMapping(value = "/changePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> update(HttpServletRequest request, @RequestBody Object payload) {
 		HttpHeaders headers = this.createHeaders(request);
 		HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
-		return reactiveService.callService("/passwordManagement/changePassword", HttpMethod.POST, requestEntity);
+		return reactiveService.callService("/PasswordManagement/changePassword", HttpMethod.POST, requestEntity);
 	}
 
-	public DeferredResult<ResponseEntity<ResponseBean>> passwordManagementFallback(HttpServletRequest request, @RequestBody Object payload) {
+	public DeferredResult<ResponseEntity<ResponseBean>> changePasswordFallback(HttpServletRequest request, @RequestBody Object payload) {
 		return reactiveService.fallback(FallbackMessage.message, FallbackMessage.message);
 	}
+
 }

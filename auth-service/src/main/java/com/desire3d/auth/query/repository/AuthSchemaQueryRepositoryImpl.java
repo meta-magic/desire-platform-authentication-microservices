@@ -1,6 +1,6 @@
 package com.desire3d.auth.query.repository;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
@@ -22,17 +22,18 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AuthSchema findAuthSchemaByLoginIdAndIsActive(String loginId, Boolean isActive) throws DataRetrievalFailureException {
+	public AuthSchema findAuthSchemaByLoginId(String loginId) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
-		AuthSchema schema = null;
+		AuthSchema authSchema = null;
 		try {
-			Query query = pm.newQuery(AuthSchema.class);
+			Query query = (pm.newQuery(AuthSchema.class));
 			query.setFilter("this.loginId==:loginId && this.isActive==:isActive");
-			List<AuthSchema> schemas = ((List<AuthSchema>) query.execute(loginId, true));
-			if (schemas.isEmpty()) {
+
+			Collection<AuthSchema> authSchemas = (Collection<AuthSchema>) query.execute(loginId, true);
+			if (authSchemas.isEmpty()) {
 				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
-				schema = schemas.get(0);
+				authSchema = pm.detachCopy(authSchemas.iterator().next());
 			}
 		} catch (Throwable e) {
 			if (e instanceof DataRetrievalFailureException) {
@@ -42,27 +43,25 @@ public class AuthSchemaQueryRepositoryImpl implements AuthSchemaQueryRepository 
 				throw new DataRetrievalFailureException(e.getMessage(), e);
 			}
 		} finally {
-			//			pm.close();
+			pm.close();
 		}
-		return schema;
+		return authSchema;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AuthSchema> findByLoginIdAndIsActive(String loginId, boolean isActive) throws DataRetrievalFailureException {
+	public Collection<AuthSchema> findByLoginId(String loginId) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
-		List<AuthSchema> schemas = null;
 		try {
 			Query query = pm.newQuery(AuthSchema.class);
 			query.setFilter("this.loginId==:loginId && this.isActive==:isActive");
-			schemas = ((List<AuthSchema>) query.execute(loginId, true));
+			Collection<AuthSchema> authSchemas = (Collection<AuthSchema>) query.execute(loginId, true);
+			return pm.detachCopyAll(authSchemas);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE, e);
 		} finally {
 			pm.close();
 		}
-		return schemas;
-
 	}
 }

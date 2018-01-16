@@ -73,7 +73,7 @@ public class TokenAspect {
 	public void allOperations() {
 	}
 
-	@Pointcut("execution(* com.desire3d.auth.controller.AuthController.*(..))")
+	@Pointcut("execution(* com.desire3d.auth.controller.AuthController.*(..)) || execution(* com.desire3d.auth.controller.ForgotPasswordController.*(..))")
 	public void skipAuthentication() {
 	}
 }

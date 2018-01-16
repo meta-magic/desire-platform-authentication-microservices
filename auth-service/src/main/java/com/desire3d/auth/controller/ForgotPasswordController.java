@@ -14,24 +14,40 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
-import com.desire3d.auth.dto.PasswordDTO;
+import com.desire3d.auth.dto.UsernameAuthentication;
 import com.desire3d.auth.fw.query.service.PasswordManagementService;
 import com.desire3d.auth.utils.ExceptionID;
 
 @RestController
 @Scope(value = "request")
-@RequestMapping("/PasswordManagement")
-public class PasswordManagementController {
+@RequestMapping("/ForgotPasswordAPI")
+public class ForgotPasswordController {
 
 	@Autowired
 	private PasswordManagementService passwordManagementService;
 
-	@RequestMapping(value = "/changePassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> changePassword(HttpServletRequest request, @RequestBody PasswordDTO passwordDTO) throws Throwable {
+	@RequestMapping(value = "/sendRecoveryToken", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DeferredResult<ResponseEntity<ResponseBean>> validateForgotPassword(HttpServletRequest request,
+			@RequestBody UsernameAuthentication usernameAuthentication) throws Throwable {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		passwordManagementService.resetPassword(passwordDTO);
+		passwordManagementService.sendRecoveryToken(usernameAuthentication);
+
+		deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.RECOVERYTOKEN_SENT, null), HttpStatus.OK));
+		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
+				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
+
+		return deferredResult;
+	}
+
+	@RequestMapping(value = "/forgotPassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DeferredResult<ResponseEntity<ResponseBean>> validateToken(HttpServletRequest request, @RequestBody UsernameAuthentication usernameAuthentication)
+			throws Throwable {
+		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
+				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
+		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
+		passwordManagementService.forgotPassword(usernameAuthentication);
 
 		deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.PASSWORD_CHANGED, null), HttpStatus.OK));
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"

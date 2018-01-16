@@ -2,6 +2,7 @@ package com.desire3d.auth.query.service;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -9,23 +10,38 @@ import org.springframework.stereotype.Service;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
 import com.desire3d.auth.dto.PasswordDTO;
-import com.desire3d.auth.exceptions.BaseDomainServiceException;
+import com.desire3d.auth.dto.UsernameAuthentication;
 import com.desire3d.auth.exceptions.DataRetrievalFailureException;
+import com.desire3d.auth.exceptions.DomainServiceFailureException;
+import com.desire3d.auth.exceptions.PasswordRecoveryFailureException;
 import com.desire3d.auth.exceptions.PersistenceFailureException;
 import com.desire3d.auth.fw.command.repository.PasswordHistoryCommandRepository;
+import com.desire3d.auth.fw.command.repository.RecoveryTokenCommandRepository;
 import com.desire3d.auth.fw.command.service.PasswordSchemaCommandService;
+import com.desire3d.auth.fw.domainservice.TokenService;
+import com.desire3d.auth.fw.query.repository.AuthSchemaQueryRepository;
 import com.desire3d.auth.fw.query.repository.PasswordHistoryQueryRepository;
 import com.desire3d.auth.fw.query.repository.PasswordSchemaQueryRepository;
+import com.desire3d.auth.fw.query.repository.RecoveryTokenQueryRepository;
+import com.desire3d.auth.fw.query.service.AuthQueryService;
 import com.desire3d.auth.fw.query.service.PasswordManagementService;
 import com.desire3d.auth.model.AuditDetails;
+import com.desire3d.auth.model.transactions.AuthSchema;
 import com.desire3d.auth.model.transactions.PasswordHistory;
 import com.desire3d.auth.model.transactions.PasswordSchema;
+import com.desire3d.auth.model.transactions.RecoveryToken;
+import com.desire3d.auth.utils.Constants;
 import com.desire3d.auth.utils.ExceptionID;
 import com.desire3d.auth.utils.HashingAlgorithms;
+import com.desire3d.event.TokenGeneratedEvent;
+import com.desire3d.event.publisher.TokenGeneratedEventPublisher;
+
+import atg.taglib.json.util.JSONException;
+import atg.taglib.json.util.JSONObject;
+import io.jsonwebtoken.ExpiredJwtException;
 
 @Service
 @Scope(value = "request")
-
 public class PasswordManagementServiceImpl implements PasswordManagementService {
 
 	@Autowired
@@ -38,21 +54,50 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 	private PasswordHistoryCommandRepository passwordHistoryCommandRepository;
 
 	@Autowired
-	private PasswordSchemaCommandService passwordSchemaCommandService;
+	private AuthQueryService authQueryService;
+
+	@Autowired
+	private TokenGeneratedEventPublisher tokenGeneratedEventPublisher;
+
+	@Autowired
+	private RecoveryTokenQueryRepository recoveryTokenQueryRepository;
+
+	@Autowired
+	private TokenService tokenService;
+
+	@Autowired
+	private AuthSchemaQueryRepository authSchemaQueryRepository;
 
 	@Autowired
 	private PasswordSchemaQueryRepository passwordSchemaQueryRepository;
 
+	@Autowired
+	private PasswordSchemaCommandService passwordSchemaCommandService;
+
+	@Autowired
+	private RecoveryTokenCommandRepository recoveryTokenCommandRepository;
+
 	@Override
 	public void resetPassword(final PasswordDTO passwordDTO) throws Throwable {
 		if (validateCurrentPassword(passwordDTO.getCurrentPassword())) {
-			final String newPasswordHash = HashingAlgorithms.getInstance().createHash(passwordDTO.getNewPassword(), HashingAlgorithms.MD5);
-			if (validateHistory(newPasswordHash)) {
-				savePasswordHistory(newPasswordHash);
-				passwordSchemaCommandService.update(newPasswordHash);
-			} else {
-				throw new BaseDomainServiceException(ExceptionID.USED_PASSWORD);
-			}
+			validateAndChangePassword(passwordDTO.getNewPassword(), loginInfoHelperBean.getUserId(), loginInfoHelperBean.getMteid());
+		}
+	}
+
+	@Override
+	public void sendRecoveryToken(UsernameAuthentication usernameAuthentication) throws Throwable {
+		if (authQueryService.validateLoginId(usernameAuthentication.getLoginId())) {
+			RecoveryToken recoveryToken = generateRecoveryToken(usernameAuthentication.getLoginId());
+			tokenGeneratedEventPublisher
+					.publish(new TokenGeneratedEvent(recoveryToken.getToken(), recoveryToken.getTokenExpiry(), recoveryToken.getPersonId()));
+		}
+	}
+
+	@Override
+	public void forgotPassword(UsernameAuthentication usernameAuthentication) throws Throwable {
+		if (validateToken(usernameAuthentication)) {
+			AuthSchema authschema = authSchemaQueryRepository.findAuthSchemaByLoginId(usernameAuthentication.getLoginId());
+			validateAndChangePassword(usernameAuthentication.getNewPassword(), authschema.getUserUUID(), authschema.getMteid());
 		}
 	}
 
@@ -65,15 +110,34 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 		if (passwordSchema.getPasswordHash().trim().equals(currentPasswordHash.trim())) {
 			return true;
 		} else {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_CURRENTPASSWORD);
+			throw new DomainServiceFailureException(ExceptionID.INVALID_CURRENTPASSWORD);
+		}
+	}
+
+	/**
+	 * validate password with history and update if valid
+	 * 
+	 * @throws DomainServiceFailureException 
+	 * @throws PersistenceFailureException 
+	 * @throws DataRetrievalFailureException 
+	 * @throws Exception 
+	 * */
+	private void validateAndChangePassword(final String newPassword, final String userId, final String mteid)
+			throws DataRetrievalFailureException, PersistenceFailureException, DomainServiceFailureException, Exception {
+		final String newPasswordHash = HashingAlgorithms.getInstance().createHash(newPassword, HashingAlgorithms.MD5);
+		if (validateHistory(newPasswordHash, userId)) {
+			savePasswordHistory(newPasswordHash, userId, mteid);
+			passwordSchemaCommandService.update(newPasswordHash, userId);
+		} else {
+			throw new DomainServiceFailureException(ExceptionID.USED_PASSWORD);
 		}
 	}
 
 	/** method used to validate password history 
 	 * @throws DataRetrievalFailureException */
-	private boolean validateHistory(final String newPasswordHash) throws DataRetrievalFailureException {
+	private boolean validateHistory(final String newPasswordHash, final String userId) throws DataRetrievalFailureException {
 		boolean isValidPassword = true;
-		final Collection<PasswordHistory> passwordHistories = passwordHistoryQueryRepository.findByUserUUID(loginInfoHelperBean.getUserId());
+		final Collection<PasswordHistory> passwordHistories = passwordHistoryQueryRepository.findByUserUUID(userId);
 		for (PasswordHistory passwordHistory : passwordHistories) {
 			if (passwordHistory.getPasswordHash().trim().equals(newPasswordHash.trim())) {
 				isValidPassword = false;
@@ -82,12 +146,43 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 		return isValidPassword;
 	}
 
-	private void savePasswordHistory(final String newPasswordHash) throws PersistenceFailureException {
-		PasswordHistory passwordHistory1 = new PasswordHistory(loginInfoHelperBean.getMteid(), loginInfoHelperBean.getUserId(), newPasswordHash);
+	private void savePasswordHistory(final String newPasswordHash, final String userId, final String mteid) throws PersistenceFailureException {
+		PasswordHistory passwordHistory1 = new PasswordHistory(mteid, userId, newPasswordHash);
 		passwordHistory1.setIsActive(true);
-		AuditDetails auditDetails = new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis()), loginInfoHelperBean.getUserId(),
-				new Date(System.currentTimeMillis()));
+		AuditDetails auditDetails = new AuditDetails(userId, new Date(System.currentTimeMillis()), userId, new Date(System.currentTimeMillis()));
 		passwordHistory1.setAuditDetails(auditDetails);
 		passwordHistoryCommandRepository.save(passwordHistory1);
 	}
+
+	private RecoveryToken generateRecoveryToken(String loginId) throws PersistenceFailureException, DataRetrievalFailureException, JSONException {
+		AuthSchema authschema = authSchemaQueryRepository.findAuthSchemaByLoginId(loginId);
+		String tokenId = UUID.randomUUID().toString();
+		JSONObject tokenJson = new JSONObject();
+		tokenJson.put("tokenId", tokenId);
+		tokenJson.put("personId", authschema.getPersonUUID());
+		tokenJson.put("loginId", authschema.getLoginId());
+		String token = tokenService.generateToken(tokenJson, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY);
+		RecoveryToken recoveryToken = new RecoveryToken(tokenId, token, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY, authschema.getPersonUUID());
+		return recoveryTokenCommandRepository.save(recoveryToken);
+	}
+
+	private boolean validateToken(UsernameAuthentication usernameAuthentication)
+			throws PasswordRecoveryFailureException, DataRetrievalFailureException, DomainServiceFailureException {
+		if (usernameAuthentication.getToken() == null) {
+			throw new DomainServiceFailureException(ExceptionID.TOKEN_EMPTY);
+		}
+		try {
+			JSONObject jsonObject = tokenService.getTokenData(usernameAuthentication.getToken());
+			usernameAuthentication.setLoginId(jsonObject.getString("loginId"));
+			recoveryTokenQueryRepository.findById(jsonObject.getString("tokenId"));
+		} catch (ExpiredJwtException e) {
+			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_EXPIRED, e);
+		} catch (IllegalArgumentException e) {
+			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_REQUIRED, e);
+		} catch (Exception e) {
+			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_INVALID, e);
+		}
+		return true;
+	}
+
 }

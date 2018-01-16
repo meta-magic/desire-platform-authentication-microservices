@@ -8,25 +8,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.desire3d.auth.exceptions.PersistenceFailureException;
-import com.desire3d.auth.fw.command.repository.LoginFailureCommandRepository;
-import com.desire3d.auth.model.transactions.LoginFailure;
+import com.desire3d.auth.fw.command.repository.RecoveryTokenCommandRepository;
+import com.desire3d.auth.model.transactions.RecoveryToken;
 import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
-public class LoginFailureCommandRepositoryImpl implements LoginFailureCommandRepository {
+public class RecoveryTokenCommandRepositoryImpl implements RecoveryTokenCommandRepository {
 
 	@Autowired
 	private PersistenceManagerFactory pmf;
 
 	@Override
-	public LoginFailure save(LoginFailure loginFailure) throws PersistenceFailureException {
+	public RecoveryToken save(RecoveryToken recoveryToken) throws PersistenceFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
 			tx.begin();
-			loginFailure = pm.makePersistent(loginFailure);
+			recoveryToken = pm.makePersistent(recoveryToken);
 			tx.commit();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			if (tx.isActive()) {
 				tx.rollback();
@@ -35,7 +35,7 @@ public class LoginFailureCommandRepositoryImpl implements LoginFailureCommandRep
 		} finally {
 			pm.close();
 		}
-		return loginFailure;
+		return recoveryToken;
 	}
 
 }

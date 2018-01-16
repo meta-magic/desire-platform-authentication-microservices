@@ -31,7 +31,7 @@ public class PasswordSchemaCommandRepositoryImpl implements PasswordSchemaComman
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceFailureException(ExceptionID.ERROR_PERSISTENCE, e);
+			throw new PersistenceFailureException(ExceptionID.ERROR_SAVE, e);
 		} finally {
 			pm.close();
 		}

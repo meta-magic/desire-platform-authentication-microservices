@@ -17,6 +17,7 @@ import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
 public class PasswordSchemaQueryRepositoryImpl implements PasswordSchemaQueryRepository {
+	
 	@Autowired
 	private PersistenceManagerFactory pmf;
 

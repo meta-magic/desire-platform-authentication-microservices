@@ -27,7 +27,6 @@ public class TokenServiceImpl implements TokenService {
 
 	@Override
 	public String generateToken(String mteid, String loginId, String userId, String personId, String appSessionId) {
-
 		JSONObject json = new JSONObject();
 		try {
 			json.put("mteid", mteid);
@@ -38,11 +37,7 @@ public class TokenServiceImpl implements TokenService {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-
-		String tokenId = Jwts.builder().setSubject(json.toString()).setExpiration(new Date(System.currentTimeMillis() + tokenValidity))
-				.signWith(SignatureAlgorithm.HS512, tokenKey).compact();
-
-		return tokenId;
+		return generateTokenFromJson(json, tokenValidity);
 	}
 
 	@Override
@@ -50,5 +45,23 @@ public class TokenServiceImpl implements TokenService {
 			throws JSONException, ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
 		String tokenData = Jwts.parser().setSigningKey(tokenKey).parseClaimsJws(tokenId).getBody().getSubject();
 		return new JSONObject(tokenData);
+	}
+
+	private String generateTokenFromJson(JSONObject tokenJson, Long tokenExpiry) {
+		return Jwts.builder().setSubject(tokenJson.toString()).setExpiration(new Date(System.currentTimeMillis() + tokenExpiry))
+				.signWith(SignatureAlgorithm.HS512, tokenKey).compact();
+	}
+
+	@Override
+	/** 
+	 * method to create JWT token using json object as a payload and expiry in miliseconds 
+	 * 
+	 * @param tokenJson a payload for JWT token
+	 * @param tokenExpiry token expiry in milliseconds 
+	 * 
+	 * @return JWT token
+	 * */
+	public String generateToken(JSONObject tokenJson, Long tokenExpiry) {
+		return generateTokenFromJson(tokenJson, tokenExpiry);
 	}
 }

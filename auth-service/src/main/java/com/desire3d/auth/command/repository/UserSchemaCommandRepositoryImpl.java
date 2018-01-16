@@ -37,7 +37,7 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
-			throw new PersistenceFailureException(ExceptionID.ERROR_PERSISTENCE, e);
+			throw new PersistenceFailureException(ExceptionID.ERROR_SAVE, e);
 		} finally {
 			pm.close();
 		}

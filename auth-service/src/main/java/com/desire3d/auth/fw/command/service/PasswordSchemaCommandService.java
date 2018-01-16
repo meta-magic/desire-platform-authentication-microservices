@@ -5,6 +5,6 @@ import com.desire3d.auth.exceptions.PersistenceFailureException;
 
 public interface PasswordSchemaCommandService {
 
-	public void update(String newPasswordHash) throws PersistenceFailureException, DataRetrievalFailureException;
+	public void update(String newPasswordHash, String userId) throws PersistenceFailureException, DataRetrievalFailureException;
 
 }

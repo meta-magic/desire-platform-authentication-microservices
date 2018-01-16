@@ -9,4 +9,6 @@ public interface TokenService {
 
 	public JSONObject getTokenData(String tokenId) throws JSONException;
 
+	public String generateToken(JSONObject tokenJson, Long tokenExpiry);
+
 }

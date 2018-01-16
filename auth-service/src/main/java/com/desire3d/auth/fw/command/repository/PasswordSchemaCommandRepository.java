@@ -6,8 +6,7 @@ import com.desire3d.auth.model.transactions.PasswordSchema;
 public interface PasswordSchemaCommandRepository {
 
 	public PasswordSchema save(PasswordSchema passwordSchema) throws PersistenceFailureException;
-	
-	public void update(PasswordSchema passwordSchema) throws PersistenceFailureException;
 
+	public void update(PasswordSchema passwordSchema) throws PersistenceFailureException;
 
 }
