@@ -1,9 +1,10 @@
 package com.desire3d.auth.aop;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import javax.jdo.JDOException;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -71,11 +72,11 @@ public class ControllerAspect {
 				if (error instanceof BaseException) {
 					BaseException exception = (BaseException) error;
 					String message = messageService.getExceptionMessage(exception);
-					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message, Arrays.asList(error.getMessage()));
+					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message, getErrorMessages(exception.getThrowable()));
 					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				} else {
 					String message = messageService.getMessageById(ExceptionID.ERROR_GLOBAL, error);
-					ResponseBean responseBean = new ResponseBean(false, ExceptionID.ERROR_GLOBAL, message, Arrays.asList(error.getMessage()));
+					ResponseBean responseBean = new ResponseBean(false, ExceptionID.ERROR_GLOBAL, message, getErrorMessages(error));
 					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				}
 				return deferredResult;
@@ -84,7 +85,23 @@ public class ControllerAspect {
 	}
 
 	/**
-	 * METHO TO VALIDATE BEAN AND IF BEAN IS NOT VALIDATE THEN GENERATE ERROR
+	 * METHOD FOR JDO EXCEPTION
+	 * @param throwable
+	 * @return
+	 */
+	private List<String> getErrorMessages(Throwable throwable) {
+		List<String> errorMessages = new ArrayList<String>();
+		String errorMessage = throwable.getMessage();
+		if (throwable instanceof JDOException && errorMessage.contains("Detail:")) {
+			errorMessages.add(errorMessage.substring(errorMessage.indexOf("Detail:"), errorMessage.length()));
+		} else {
+			errorMessages.add(errorMessage);
+		}
+		return errorMessages;
+	}
+
+	/**
+	 * METHOD TO VALIDATE BEAN AND IF BEAN IS NOT VALIDATE THEN GENERATE ERROR
 	 * MESSAGES
 	 * 
 	 */
