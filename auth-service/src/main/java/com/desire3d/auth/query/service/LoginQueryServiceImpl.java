@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
-import com.desire3d.auth.exceptions.BaseDomainServiceException;
+import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginHistoryCommandRepository;
 import com.desire3d.auth.fw.query.repository.AppSessionQueryRepository;
@@ -42,7 +42,7 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 		String appSessionId = loginInfoHelperBean.getAppSessionId();
 		String userId = loginInfoHelperBean.getUserId();
 		if (appSessionId == null && userId == null) {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_USERSESSION);
+			throw new DataRetrievalFailureException(ExceptionID.INVALID_USERSESSION);
 		} else {
 			// UPDATE APPSSESSION ACTIVE STATUS
 			AppSession appSession = appSessionQRepo.findAppSessionByAppSessionIdAndIsActive(appSessionId, true);

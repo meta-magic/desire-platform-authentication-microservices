@@ -1,5 +1,6 @@
 package com.desire3d.auth.fw.query.service;
 
+import com.desire3d.auth.dto.ForgotPasswordDTO;
 import com.desire3d.auth.dto.PasswordDTO;
 import com.desire3d.auth.dto.UsernameAuthentication;
 
@@ -9,6 +10,6 @@ public interface PasswordManagementService {
 
 	public void sendRecoveryToken(UsernameAuthentication usernameAuthentication) throws Throwable;
 
-	public void forgotPassword(UsernameAuthentication usernameAuthentication) throws Throwable;
+	public void forgotPassword(ForgotPasswordDTO forgotPasswordDTO) throws Throwable;
 
 }

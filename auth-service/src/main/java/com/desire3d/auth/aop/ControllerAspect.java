@@ -72,7 +72,7 @@ public class ControllerAspect {
 				if (error instanceof BaseException) {
 					BaseException exception = (BaseException) error;
 					String message = messageService.getExceptionMessage(exception);
-					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message, getErrorMessages(exception.getThrowable()));
+					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message, getErrorMessages(exception));
 					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				} else {
 					String message = messageService.getMessageById(ExceptionID.ERROR_GLOBAL, error);
@@ -85,17 +85,28 @@ public class ControllerAspect {
 	}
 
 	/**
-	 * METHOD FOR JDO EXCEPTION
-	 * @param throwable
-	 * @return
+	 * METHOD FROM {@link BaseException}
+	 * @param exception
+	 * @return errorMessages
 	 */
-	private List<String> getErrorMessages(Throwable throwable) {
+	private List<String> getErrorMessages(final BaseException exception) {
+		return getErrorMessages(exception.getThrowable());
+	}
+
+	/**
+	 * METHOD FROM {@link Throwable}
+	 * @param throwable
+	 * @return errorMessages
+	 */
+	private List<String> getErrorMessages(final Throwable throwable) {
 		List<String> errorMessages = new ArrayList<String>();
-		String errorMessage = throwable.getMessage();
-		if (throwable instanceof JDOException && errorMessage.contains("Detail:")) {
-			errorMessages.add(errorMessage.substring(errorMessage.indexOf("Detail:"), errorMessage.length()));
-		} else {
-			errorMessages.add(errorMessage);
+		if (throwable != null) {
+			String errorMessage = throwable.getMessage();
+			if (throwable instanceof JDOException && errorMessage.contains("Detail:")) {
+				errorMessages.add(errorMessage.substring(errorMessage.indexOf("Detail:"), errorMessage.length()));
+			} else {
+				errorMessages.add(errorMessage);
+			}
 		}
 		return errorMessages;
 	}

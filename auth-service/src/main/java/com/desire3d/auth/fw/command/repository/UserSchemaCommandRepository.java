@@ -7,4 +7,6 @@ public interface UserSchemaCommandRepository {
 
 	public UserSchema save(UserSchema userSchema) throws PersistenceFailureException;
 
+	public void update(UserSchema userSchema) throws PersistenceFailureException;
+
 }

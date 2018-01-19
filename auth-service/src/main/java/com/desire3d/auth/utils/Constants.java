@@ -24,5 +24,10 @@ public interface Constants {
 	public final static Integer PASSWORDHISTORY_LIMIT = 3;
 
 	public final static Long PASSWORD_RECOVERY_TOKEN_EXPIRY = 600000L;
+	
+	public final static String TOKEN_ID_KEY = "tokenId";
+
+	
+	
 
 }

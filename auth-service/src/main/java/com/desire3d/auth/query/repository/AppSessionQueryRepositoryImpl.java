@@ -1,6 +1,6 @@
 package com.desire3d.auth.query.repository;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
@@ -29,11 +29,11 @@ public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository 
 			query.setFilter("this.appSessionId==:appSessionId && isActive==:true");
 
 			@SuppressWarnings("unchecked")
-			List<AppSession> appSessions = ((List<AppSession>) query.execute(appSessionId, true));
+			Collection<AppSession> appSessions = ((Collection<AppSession>) query.execute(appSessionId, true));
 			if (appSessions.isEmpty()) {
 				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
-				appSession = appSessions.get(0);
+				appSession = pm.detachCopy(appSessions.iterator().next());
 			}
 		} catch (Throwable e) {
 			if (e instanceof DataRetrievalFailureException) {

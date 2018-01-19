@@ -8,7 +8,7 @@ public class BaseDomainServiceException extends BaseException {
 
 	private static final long serialVersionUID = 5329187651538325888L;
 
-	public BaseDomainServiceException(String messageId) {
+	protected BaseDomainServiceException(String messageId) {
 		super(messageId);
 	}
 

@@ -5,5 +5,5 @@ import com.desire3d.auth.model.transactions.UserSchema;
 
 public interface UserSchemaQueryRepository {
 
-	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataRetrievalFailureException;
+	public UserSchema findById(String userUUID) throws DataRetrievalFailureException;
 }

@@ -1,6 +1,6 @@
 package com.desire3d.auth.query.repository;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.fw.query.repository.UserSchemaQueryRepository;
 import com.desire3d.auth.model.transactions.UserSchema;
+import com.desire3d.auth.utils.ExceptionID;
 
 @Repository
 public class UserSchemaQueryRepositoryImpl implements UserSchemaQueryRepository {
@@ -19,45 +20,31 @@ public class UserSchemaQueryRepositoryImpl implements UserSchemaQueryRepository 
 	@Autowired
 	private PersistenceManagerFactory pmf;
 
-	/*@Override
-	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataNotFoundException {
+	@Override
+	public UserSchema findById(String userUUID) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		UserSchema userSchema = null;
 		try {
-			Query query = pm.newQuery(UserSchema.class);
-			query.setFilter("this.userUUID==:userUUID && isActive==:true");
+			Query query = (pm.newQuery(UserSchema.class));
+			query.setFilter("this.userUUID==:userUUID && isActive==:isActive");
+
 			@SuppressWarnings("unchecked")
-			List<UserSchema> userSchemas = ((List<UserSchema>) query.execute(userUUID, true));
+			Collection<UserSchema> userSchemas = (Collection<UserSchema>) query.execute(userUUID,true);
 			if (userSchemas.isEmpty()) {
-				throw new DataNotFoundException(ExceptionID.ERROR_RETRIEVE);
+				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
 			} else {
-				userSchema = pm.detachCopy(userSchemas.get(0));
+				userSchema = pm.detachCopy(userSchemas.iterator().next());
 			}
 		} catch (Throwable e) {
-			if (e instanceof DataNotFoundException) {
+			if (e instanceof DataRetrievalFailureException) {
 				throw e;
 			} else {
 				e.printStackTrace();
-				throw new DataNotFoundException(e.getMessage(), e);
+				throw new DataRetrievalFailureException(e.getMessage(), e);
 			}
 		} finally {
 			pm.close();
 		}
 		return userSchema;
-	}*/
-
-	@Override
-	public UserSchema findUserSchemaByUserUUIDAndIsActive(String userUUID, Boolean isActive) throws DataRetrievalFailureException {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Query query = pm.newQuery(UserSchema.class);
-		query.setFilter("this.userUUID==:userUUID && isActive==:true");
-
-		@SuppressWarnings("unchecked")
-		List<UserSchema> userSchemas = ((List<UserSchema>) query.execute(userUUID, true));
-		if (userSchemas.isEmpty()) {
-			throw new DataRetrievalFailureException("Data not found exception %s");
-		} else {
-			return userSchemas.get(0);
-		}
 	}
 }

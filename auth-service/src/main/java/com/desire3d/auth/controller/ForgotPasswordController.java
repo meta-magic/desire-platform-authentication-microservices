@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
+import com.desire3d.auth.dto.ForgotPasswordDTO;
 import com.desire3d.auth.dto.UsernameAuthentication;
 import com.desire3d.auth.fw.query.service.PasswordManagementService;
 import com.desire3d.auth.utils.ExceptionID;
@@ -42,12 +43,11 @@ public class ForgotPasswordController {
 	}
 
 	@RequestMapping(value = "/forgotPassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> validateToken(HttpServletRequest request, @RequestBody UsernameAuthentication usernameAuthentication)
-			throws Throwable {
+	public DeferredResult<ResponseEntity<ResponseBean>> validateToken(@RequestBody ForgotPasswordDTO forgotPasswordDTO) throws Throwable {
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
 				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		passwordManagementService.forgotPassword(usernameAuthentication);
+		passwordManagementService.forgotPassword(forgotPasswordDTO);
 
 		deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.PASSWORD_CHANGED, null), HttpStatus.OK));
 		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"

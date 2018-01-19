@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import com.desire3d.auth.domainservice.LoginDomainService;
 import com.desire3d.auth.dto.AuthenticateResponse;
 import com.desire3d.auth.dto.LoginResponseDto;
-import com.desire3d.auth.exceptions.BaseDomainServiceException;
 import com.desire3d.auth.exceptions.BaseException;
+import com.desire3d.auth.exceptions.DataRetrievalFailureException;
 import com.desire3d.auth.exceptions.PersistenceFailureException;
 import com.desire3d.auth.fw.command.repository.AppSessionCommandRepository;
 import com.desire3d.auth.fw.command.repository.LoginFailureCommandRepository;
@@ -54,7 +54,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	private PasswordSchemaQueryRepository passwordRepo;
 
 	@Autowired
-	private UserSchemaQueryRepository userQRepo;
+	private UserSchemaQueryRepository userSchemaQueryRepository;
 
 	@Autowired
 	private LoginDomainService loginDomainService;
@@ -62,7 +62,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	@Override
 	public boolean validateLoginId(String loginId) throws Throwable {
 		if (loginId == null) {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID);
+			throw new DataRetrievalFailureException(ExceptionID.INVALID_LOGINID);
 		}
 		Collection<AuthSchema> auth = authSchemaQueryRepository.findByLoginId(loginId);
 		if (auth.isEmpty()) {
@@ -75,7 +75,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	@Override
 	public LoginResponseDto authenticate(String loginId, String password, Double latitude, Double longitude, HttpServletRequest request) throws Throwable {
 		if (loginId == null || password == null) {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);
+			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
 		try {
@@ -97,7 +97,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			return loginResponse;
 		} catch (Throwable e) {
 			this.loginFailure(loginId, ((BaseException) e).getMessageId(), longitude, longitude, request);
-			throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);
+			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
 	}
@@ -154,15 +154,15 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	private AuthenticateResponse processLoginRequest(String loginId, String password, Double latitude, Double longitude) throws Throwable {
 
 		if (loginId == null || password == null) {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);
+			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
 		// UserSchema user = null;
 		AuthSchema auth = authSchemaQueryRepository.findAuthSchemaByLoginId(loginId);
 		if (auth != null && auth.getUserUUID() != null) {
-			UserSchema user = userQRepo.findUserSchemaByUserUUIDAndIsActive(auth.getUserUUID(), true);
+			UserSchema user = userSchemaQueryRepository.findById(auth.getUserUUID());
 			if (user.getAccountBlocked().equals(1) || user.isAccountExpired()) {
-				throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID_ACCOUNTBLOCKEDOREXPIRED);
+				throw new DataRetrievalFailureException(ExceptionID.INVALID_LOGINID_ACCOUNTBLOCKEDOREXPIRED);
 			}
 
 			PasswordSchema passwordSchema = passwordRepo.findByUserUUID(auth.getUserUUID());
@@ -175,7 +175,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			}*/
 
 			if ((passwordSchema == null && passwordSchema.getPasswordHash() == null) || !passwordSchema.getPasswordHash().trim().equals(password.trim())) {
-				throw new BaseDomainServiceException(ExceptionID.INVALID_USER_CREDENTIALS);
+				throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 			} else {
 				AuthenticateResponse authResp = new AuthenticateResponse(auth, user, passwordSchema);
 
@@ -186,7 +186,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 				return authResp;
 			}
 		} else {
-			throw new BaseDomainServiceException(ExceptionID.INVALID_LOGINID);
+			throw new DataRetrievalFailureException(ExceptionID.INVALID_LOGINID);
 		}
 
 		// return null;

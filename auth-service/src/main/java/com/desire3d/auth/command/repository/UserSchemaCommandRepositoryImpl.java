@@ -43,4 +43,23 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 		}
 		return userSchema;
 	}
+
+	@Override
+	public void update(UserSchema userSchema) throws PersistenceFailureException {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			pm.makePersistent(userSchema);
+			tx.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			throw new PersistenceFailureException(ExceptionID.ERROR_UPDATE, e);
+		} finally {
+			pm.close();
+		}
+	}
 }

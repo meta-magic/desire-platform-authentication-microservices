@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
+import com.desire3d.auth.dto.ForgotPasswordDTO;
 import com.desire3d.auth.dto.PasswordDTO;
 import com.desire3d.auth.dto.UsernameAuthentication;
 import com.desire3d.auth.exceptions.DataRetrievalFailureException;
@@ -90,14 +91,16 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 			RecoveryToken recoveryToken = generateRecoveryToken(usernameAuthentication.getLoginId());
 			tokenGeneratedEventPublisher
 					.publish(new TokenGeneratedEvent(recoveryToken.getToken(), recoveryToken.getTokenExpiry(), recoveryToken.getPersonId()));
+		} else {
+			throw new DomainServiceFailureException(ExceptionID.INVALID_LOGINID);
 		}
 	}
 
 	@Override
-	public void forgotPassword(UsernameAuthentication usernameAuthentication) throws Throwable {
-		if (validateToken(usernameAuthentication)) {
-			AuthSchema authschema = authSchemaQueryRepository.findAuthSchemaByLoginId(usernameAuthentication.getLoginId());
-			validateAndChangePassword(usernameAuthentication.getNewPassword(), authschema.getUserUUID(), authschema.getMteid());
+	public void forgotPassword(final ForgotPasswordDTO forgotPasswordDTO) throws Throwable {
+		if (validateToken(forgotPasswordDTO)) {
+			AuthSchema authschema = authSchemaQueryRepository.findAuthSchemaByLoginId(forgotPasswordDTO.getLoginId());
+			validateAndChangePassword(forgotPasswordDTO.getNewPassword(), authschema.getUserUUID(), authschema.getMteid());
 		}
 	}
 
@@ -159,22 +162,23 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 		String tokenId = UUID.randomUUID().toString();
 		JSONObject tokenJson = new JSONObject();
 		tokenJson.put("tokenId", tokenId);
-		tokenJson.put("personId", authschema.getPersonUUID());
-		tokenJson.put("loginId", authschema.getLoginId());
 		String token = tokenService.generateToken(tokenJson, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY);
 		RecoveryToken recoveryToken = new RecoveryToken(tokenId, token, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY, authschema.getPersonUUID());
 		return recoveryTokenCommandRepository.save(recoveryToken);
 	}
 
-	private boolean validateToken(UsernameAuthentication usernameAuthentication)
+	private boolean validateToken(final ForgotPasswordDTO forgotPasswordDTO)
 			throws PasswordRecoveryFailureException, DataRetrievalFailureException, DomainServiceFailureException {
-		if (usernameAuthentication.getToken() == null) {
+		if (forgotPasswordDTO.getToken() == null) {
 			throw new DomainServiceFailureException(ExceptionID.TOKEN_EMPTY);
 		}
+		boolean valid = false;
 		try {
-			JSONObject jsonObject = tokenService.getTokenData(usernameAuthentication.getToken());
-			usernameAuthentication.setLoginId(jsonObject.getString("loginId"));
-			recoveryTokenQueryRepository.findById(jsonObject.getString("tokenId"));
+			JSONObject jsonObject = tokenService.getTokenData(forgotPasswordDTO.getToken());
+			RecoveryToken token = recoveryTokenQueryRepository.findById(jsonObject.getString("tokenId"));
+			if (token != null && token.getTokenId().equals(jsonObject.getString(Constants.TOKEN_ID_KEY))) {
+				valid = true;
+			}
 		} catch (ExpiredJwtException e) {
 			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_EXPIRED, e);
 		} catch (IllegalArgumentException e) {
@@ -182,7 +186,7 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 		} catch (Exception e) {
 			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_INVALID, e);
 		}
-		return true;
+		return valid;
 	}
 
 }

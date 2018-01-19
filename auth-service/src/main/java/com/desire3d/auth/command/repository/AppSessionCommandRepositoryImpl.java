@@ -37,9 +37,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			auditDetails.setUpdatedTime(new Date(System.currentTimeMillis()));
 			appSession.setAuditDetails(auditDetails);
 
-			System.err.println("Before update : " + appSession_old);
 			appSession = pm.makePersistent(appSession_old);
-			System.err.println("After update : " + appSession_old);
 
 			tx.commit();
 		} catch (Throwable e) {
