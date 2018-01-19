@@ -15,10 +15,6 @@ public class UsernameAuthentication implements Serializable {
 
 	protected String loginId;
 
-	private String token;
-
-	private String newPassword;
-
 	public UsernameAuthentication() {
 		super();
 	}
@@ -28,35 +24,12 @@ public class UsernameAuthentication implements Serializable {
 		this.loginId = loginId;
 	}
 
-	public UsernameAuthentication(String loginId, String token, String newPassword) {
-		super();
-		this.loginId = loginId;
-		this.token = token;
-		this.newPassword = newPassword;
-	}
-
 	public String getLoginId() {
 		return loginId;
 	}
 
 	public void setLoginId(String loginId) {
 		this.loginId = loginId;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public String getNewPassword() {
-		return newPassword;
-	}
-
-	public void setNewPassword(String newPassword) {
-		this.newPassword = newPassword;
 	}
 
 }
