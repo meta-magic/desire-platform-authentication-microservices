@@ -17,18 +17,17 @@ import com.desire3d.auth.model.transactions.PasswordHistory;
 //@SpringBootTest
 public class PasswordHistoryTestCase {
 
-	@Autowired
+	//	@Autowired
 	private PasswordHistoryCommandRepository passwordHistoryCommandRepository;
 
-//	@Test
+	//	@Test
 	public void save() {
 		PasswordHistory passwordHistory = new PasswordHistory();
-		passwordHistory.setMteid("44");
+		passwordHistory.setMteid("");
 		passwordHistory.setIsActive(true);
-		passwordHistory.setPasswordHash("OO");
-		passwordHistory.setUserUUID("4a9c471-aa3b-4479-b70d-e24293856fusr");
-		passwordHistory
-				.setAuditDetails(new AuditDetails("4a9c471-aa3b-4479-b70d-e24293856fusr", new Date(), "4a9c471-aa3b-4479-b70d-e24293856fusr", new Date()));
+		passwordHistory.setPasswordHash("");
+		passwordHistory.setUserUUID("");
+		passwordHistory.setAuditDetails(new AuditDetails("", new Date(), "", new Date()));
 		try {
 			passwordHistoryCommandRepository.save(passwordHistory);
 		} catch (PersistenceFailureException e) {

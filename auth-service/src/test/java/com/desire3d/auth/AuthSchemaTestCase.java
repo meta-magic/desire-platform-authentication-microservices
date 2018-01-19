@@ -17,15 +17,10 @@ import com.desire3d.auth.model.transactions.AuthSchema;
 
 public class AuthSchemaTestCase {
 
-	@Autowired
+	//	@Autowired
 	private AuthSchemaQueryRepository authSchemaQueryRepository;
 
-//	@Test
-//	public void findById() {
-//		_findById(_findId());
-//	}
-
-//	@Test
+	//	@Test
 	private AuthSchema findById(String loginId) {
 		try {
 			return authSchemaQueryRepository.findAuthSchemaByLoginId(loginId);
