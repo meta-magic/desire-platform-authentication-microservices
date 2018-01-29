@@ -20,12 +20,16 @@ public final class UserCreatedEvent implements IntegrationEvent {
 
 	private String phoneNumber;
 
+	private String customerId;
+
+	private String mteid;
+
 	public UserCreatedEvent() {
 		super();
 	}
 
 	public UserCreatedEvent(final String personUUID, final String loginId, final String firstName, final String lastName, final String emailId,
-			final String phoneNumber) {
+			final String phoneNumber, final String customerId, final String mteid) {
 		super();
 		this.personUUID = personUUID;
 		this.loginId = loginId;
@@ -33,6 +37,8 @@ public final class UserCreatedEvent implements IntegrationEvent {
 		this.lastName = lastName;
 		this.emailId = emailId;
 		this.phoneNumber = phoneNumber;
+		this.customerId = customerId;
+		this.mteid = mteid;
 	}
 
 	public String getPersonUUID() {
@@ -59,9 +65,11 @@ public final class UserCreatedEvent implements IntegrationEvent {
 		return phoneNumber;
 	}
 
-	@Override
-	public String toString() {
-		return "UserCreatedEvent [personUUID=" + personUUID + ", loginId=" + loginId + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId="
-				+ emailId + ", phoneNumber=" + phoneNumber + "]";
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public String getMteid() {
+		return mteid;
 	}
 }
