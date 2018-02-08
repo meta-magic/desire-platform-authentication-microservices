@@ -1,4 +1,4 @@
-package com.desire3d.auth.controller;
+package com.desire3d.auth.insecure.controller;
 
 import javax.servlet.http.HttpServletRequest;
 

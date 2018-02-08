@@ -42,7 +42,7 @@ public class TokenAspect {
 	@Autowired
 	private MessageService messageService;
 
-	@Around("allOperations() && !skipAuthentication()")
+	@Around("allOperations() && !insecureCalls()")
 	public Object validateToken(ProceedingJoinPoint joinPoint) throws Throwable {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>(60000L);
@@ -73,7 +73,7 @@ public class TokenAspect {
 	public void allOperations() {
 	}
 
-	@Pointcut("execution(* com.desire3d.auth.controller.AuthController.*(..)) || execution(* com.desire3d.auth.controller.ForgotPasswordController.*(..))")
-	public void skipAuthentication() {
+	@Pointcut("execution(* com.desire3d.auth.insecure.controller..*.*(..))")
+	public void insecureCalls() {
 	}
 }

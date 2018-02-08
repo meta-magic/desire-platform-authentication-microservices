@@ -9,6 +9,7 @@ import javax.jdo.JDOException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -43,8 +44,8 @@ public class ControllerAspect {
 		System.out.println(new Date() + " Execution [ " + msg + "  ] ends");
 		return response;
 	}
-
-	@Around("execution(* com.desire3d.*.controller..*.*(..))")
+	
+	@Around("allOperations() || insecureCalls()")
 	public Object processCall(ProceedingJoinPoint joinPoint) {
 		List<String> errors = validate(joinPoint);
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>(60000L);
@@ -82,6 +83,14 @@ public class ControllerAspect {
 				return deferredResult;
 			}
 		}
+	}
+	
+	@Pointcut("execution(* com.desire3d.auth.controller..*.*(..))")
+	public void allOperations() {
+	}
+
+	@Pointcut("execution(* com.desire3d.auth.insecure.controller..*.*(..))")
+	public void insecureCalls() {
 	}
 
 	/**
