@@ -11,6 +11,7 @@ import javax.jdo.annotations.VersionStrategy;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "appsession", detachable = "true")
 @Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
@@ -33,6 +34,7 @@ public class AppSession implements Serializable, CommonValidator {
 	private Long version;
 
 	@Persistent(defaultFetchGroup = "true")
+	@JsonIgnore
 	private AuditDetails auditDetails;
 
 	public AppSession() {

@@ -9,9 +9,11 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
+import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "appstate", detachable = "true")
 @Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
@@ -25,8 +27,7 @@ public class AppState implements Serializable, CommonValidator {
 	private String appStateUUID;
 
 	@Persistent
-	//	@NotNull(message = "mteid should not be null")
-	//	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
+	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
 	@Persistent
@@ -74,6 +75,7 @@ public class AppState implements Serializable, CommonValidator {
 	private Long version;
 
 	@Persistent(defaultFetchGroup = "true")
+	@JsonIgnore
 	private AuditDetails auditDetails;
 
 	public AppState() {

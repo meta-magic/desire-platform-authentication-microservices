@@ -14,6 +14,7 @@ import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "passwordschema", detachable = "true")
 @Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
@@ -27,7 +28,6 @@ public class PasswordSchema implements Serializable, CommonValidator {
 	private String passwordUUID;
 
 	@Persistent
-	@NotNull(message = "mteid should not be null")
 	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
@@ -43,13 +43,13 @@ public class PasswordSchema implements Serializable, CommonValidator {
 	private String passwordHash;
 
 	@Persistent
-	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Persistent
 	private Long version;
 
 	@Persistent(defaultFetchGroup = "true")
+	@JsonIgnore
 	private AuditDetails auditDetails;
 
 	public PasswordSchema() {

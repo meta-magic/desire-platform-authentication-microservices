@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "loginfailure", detachable = "true")
 @Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
@@ -31,7 +32,6 @@ public class LoginFailure implements Serializable, CommonValidator {
 	private String loginId;
 
 	@Persistent
-	@NotNull(message = "mteid should not be null")
 	@Size(min = 1, max = 128, message = "mteid must be between 1 and 128 characters")
 	private String mteid;
 
@@ -69,13 +69,13 @@ public class LoginFailure implements Serializable, CommonValidator {
 	private Double longitude;
 
 	@Persistent
-	@NotNull(message = "Active Status should not be null")
 	private Boolean isActive = true;
 
 	@Persistent
 	private Long version;
 
 	@Persistent(defaultFetchGroup = "true")
+	@JsonIgnore
 	private AuditDetails auditDetails;
 
 	public LoginFailure() {

@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public final class EmailNotificationEvent implements IntegrationEvent {
 
-	private static final long serialVersionUID = -6691776231160725L;
+	private static final long serialVersionUID = -728883814115792216L;
 
 	private final String toAddress;
 
@@ -25,24 +25,73 @@ public final class EmailNotificationEvent implements IntegrationEvent {
 
 	private final Map<String, Object> dynamicContent;
 
-	/**
-	 * @param toAddress
-	 * @param subject
-	 * @param cc
-	 * @param bcc
-	 * @param templateId
-	 */
-	public EmailNotificationEvent(String toAddress, String subject, Set<String> cc, Set<String> bcc, String templateId) {
+	public EmailNotificationEvent() {
 		super();
-		this.toAddress = toAddress;
-		this.subject = subject;
-		this.cc = cc;
-		this.bcc = bcc;
-		this.templateId = templateId;
+		this.toAddress = null;
+		this.subject = null;
+		this.cc = null;
+		this.bcc = null;
+		this.templateId = null;
 		this.dynamicContent = null;
 	}
 
 	/**
+	 * Construct an object without subject 
+	 * 
+	 * @param toAddress
+	 * @param templateId
+	 * @param dynamicContent
+	 */
+	public EmailNotificationEvent(String toAddress, String templateId, Map<String, Object> dynamicContent) {
+		super();
+		this.toAddress = toAddress;
+		this.templateId = templateId;
+		this.dynamicContent = dynamicContent;
+		this.subject = null;
+		this.cc = null;
+		this.bcc = null;
+	}
+
+	/**
+	 * Construct an object with subject 
+	 * 
+	 * @param toAddress
+	 * @param subject
+	 * @param templateId
+	 * @param dynamicContent
+	 */
+	public EmailNotificationEvent(String toAddress, String subject, String templateId, Map<String, Object> dynamicContent) {
+		super();
+		this.toAddress = toAddress;
+		this.subject = subject;
+		this.templateId = templateId;
+		this.dynamicContent = dynamicContent;
+		this.cc = null;
+		this.bcc = null;
+	}
+
+	/**
+	 * Construct an object with subject, cc
+	 * 
+	 * @param toAddress
+	 * @param subject
+	 * @param cc
+	 * @param templateId
+	 * @param dynamicContent
+	 */
+	public EmailNotificationEvent(String toAddress, String subject, Set<String> cc, String templateId, Map<String, Object> dynamicContent) {
+		super();
+		this.toAddress = toAddress;
+		this.subject = subject;
+		this.cc = cc;
+		this.bcc = null;
+		this.templateId = templateId;
+		this.dynamicContent = dynamicContent;
+	}
+
+	/**
+	 * Construct an object with subject, cc && bcc
+	 * 
 	 * @param toAddress
 	 * @param subject
 	 * @param cc
@@ -58,22 +107,6 @@ public final class EmailNotificationEvent implements IntegrationEvent {
 		this.bcc = bcc;
 		this.templateId = templateId;
 		this.dynamicContent = dynamicContent;
-	}
-
-	/**
-	 * @param toAddress
-	 * @param subject
-	 * @param templateId
-	 * @param dynamicContent
-	 */
-	public EmailNotificationEvent(String toAddress, String subject, String templateId, Map<String, Object> dynamicContent) {
-		super();
-		this.toAddress = toAddress;
-		this.subject = subject;
-		this.templateId = templateId;
-		this.dynamicContent = dynamicContent;
-		this.cc = null;
-		this.bcc = null;
 	}
 
 	public String getToAddress() {

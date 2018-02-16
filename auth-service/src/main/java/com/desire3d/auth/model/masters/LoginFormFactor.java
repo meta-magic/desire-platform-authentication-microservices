@@ -14,6 +14,7 @@ import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.MasterAuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "loginformfactor", detachable = "true")
 @Version(column = "VERSION", strategy = VersionStrategy.VERSION_NUMBER, extensions = {
@@ -47,13 +48,13 @@ public class LoginFormFactor implements Serializable, CommonValidator {
 	private String description;
 
 	@Persistent
-	@NotNull(message = "isActive Status should not be null")
 	private Boolean isActive = true;
 
 	@Persistent
 	private Long version;
 
 	@Persistent(defaultFetchGroup = "true")
+	@JsonIgnore
 	private MasterAuditDetails auditDetails;
 
 	public LoginFormFactor() {

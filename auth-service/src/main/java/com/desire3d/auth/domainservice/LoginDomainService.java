@@ -142,8 +142,8 @@ public final class LoginDomainService {
 		Map<String, Object> loginContext = new HashMap<String, Object>();
 		loginContext.put("username", event.getFirstName() + " " + event.getLastName());
 		loginContext.put("loginid", event.getLoginId());
-		EmailNotificationEvent loginIdNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration",
-				Constants.TEMPLATE_ID_FOR_LOGINID_NOTIFICATION, loginContext);
+		EmailNotificationEvent loginIdNotification = new EmailNotificationEvent(event.getEmailId(), Constants.TEMPLATE_ID_FOR_LOGINID_NOTIFICATION,
+				loginContext);
 		return notificationEventPublisher.publish(loginIdNotification);
 	}
 
@@ -157,8 +157,8 @@ public final class LoginDomainService {
 		Map<String, Object> passwordContext = new HashMap<String, Object>();
 		passwordContext.put("username", event.getFirstName() + " " + event.getLastName());
 		passwordContext.put("password", password);
-		EmailNotificationEvent passwordNotification = new EmailNotificationEvent(event.getEmailId(), "User Registration",
-				Constants.TEMPLATE_ID_FOR_PASSWORD_NOTIFICATION, passwordContext);
+		EmailNotificationEvent passwordNotification = new EmailNotificationEvent(event.getEmailId(), Constants.TEMPLATE_ID_FOR_PASSWORD_NOTIFICATION,
+				passwordContext);
 		return notificationEventPublisher.publish(passwordNotification);
 	}
 
