@@ -52,12 +52,10 @@ public class LoginFailure implements Serializable, CommonValidator {
 
 	@Persistent
 	@NotNull(message = "Browser should not be null")
-	@Size(min = 1, max = 128, message = "Browser must be between 1 and 128 characters")
 	private String browser;
 
 	@Persistent
 	@NotNull(message = "User Agent should not be null")
-	@Size(min = 1, max = 128, message = "User Agent must be between 1 and 128 characters")
 	private String userAgent;
 
 	@Persistent

@@ -51,6 +51,24 @@ public final class EmailNotificationEvent implements IntegrationEvent {
 		this.cc = null;
 		this.bcc = null;
 	}
+	
+	/**
+	 * Construct an object with bcc & without subject 
+	 * 
+	 * @param toAddress
+	 * @param bcc
+	 * @param templateId
+	 * @param dynamicContent
+	 */
+	public EmailNotificationEvent(String toAddress, Set<String> bcc, String templateId, Map<String, Object> dynamicContent) {
+		super();
+		this.toAddress = toAddress;
+		this.bcc = bcc;
+		this.templateId = templateId;
+		this.dynamicContent = dynamicContent;
+		this.subject = null;
+		this.cc = null;
+	}
 
 	/**
 	 * Construct an object with subject 

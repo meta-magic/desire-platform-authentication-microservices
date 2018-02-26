@@ -58,12 +58,10 @@ public class LoginHistory implements Serializable, CommonValidator {
 
 	@Persistent
 	@NotNull(message = "Ip Address should not be null")
-	@Size(min = 1, max = 128, message = "Ip Address must be between 1 and 128 characters")
 	private String browser;
 
 	@Persistent
 	@NotNull(message = "User Agent should not be null")
-	@Size(min = 1, max = 128, message = "User Agent must be between 1 and 128 characters")
 	private String userAgent;
 
 	@Persistent
