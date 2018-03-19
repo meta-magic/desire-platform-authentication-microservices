@@ -1,0 +1,2 @@
+CREATE TABLESPACE authdbdata OWNER authdb_user LOCATION '/home/mahesh/platform/postgres-tablespace/authdb/data';
+CREATE TABLESPACE authdbindex OWNER authdb_user LOCATION '/home/mahesh/platform/postgres-tablespace/authdb/index';

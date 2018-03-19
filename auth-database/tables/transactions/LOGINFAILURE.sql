@@ -1,0 +1,20 @@
+CREATE TABLE "LOGINFAILURE"
+(
+  "LOGINFAILUREUUID" varchar(128) NOT NULL,
+  "LOGINID" varchar(128) NOT NULL,
+  "MTEID" varchar(128) NOT NULL,
+  "APPSERVERSESSIONID" varchar(128) NOT NULL,
+  "LOGINERRORID" varchar(128) NOT NULL,
+  "IPADDRESS" varchar(128) NOT NULL,
+  "BROWSER" text NOT NULL,
+  "USERAGENT" text NOT NULL,
+  "LATITUDE" double precision,
+  "LONGITUDE" double precision,
+  "ISACTIVE" boolean NOT NULL DEFAULT true,
+  "VERSION" integer NOT NULL DEFAULT 1,
+  "CREATEDBY" varchar(128) NOT NULL,
+  "CREATEDTIME" timestamp with time zone NOT NULL,
+  "UPDATEDBY" varchar(128) NOT NULL,
+  "UPDATEDTIME" timestamp with time zone NOT NULL,
+  CONSTRAINT "LOGINFAILUREUUID_PK" PRIMARY KEY ("LOGINFAILUREUUID")
+);

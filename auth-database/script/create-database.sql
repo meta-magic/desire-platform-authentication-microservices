@@ -1,0 +1,1 @@
+CREATE DATABASE authdb WITH ENCODING='UTF8' OWNER=authdb_user TABLESPACE=authdbdata;

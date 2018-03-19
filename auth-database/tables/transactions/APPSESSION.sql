@@ -1,0 +1,12 @@
+CREATE TABLE "APPSESSION"
+(
+  "APPSESSIONID" varchar(255) NOT NULL,
+  "APPDATA" varchar(128),
+  "ISACTIVE" boolean NOT NULL DEFAULT true,
+  "VERSION" integer NOT NULL DEFAULT 1,
+  "CREATEDBY" varchar(255) NOT NULL,
+  "CREATEDTIME" timestamp with time zone NOT NULL,
+  "UPDATEDBY" varchar(255) NOT NULL,
+  "UPDATEDTIME" timestamp with time zone NOT NULL, 
+  CONSTRAINT "APPSESSIONID_PK" PRIMARY KEY ("APPSESSIONID")
+);
