@@ -24,12 +24,14 @@ public final class UserCreatedEvent implements IntegrationEvent {
 
 	private String mteid;
 
+	private String orgName;
+	
 	public UserCreatedEvent() {
 		super();
 	}
 
 	public UserCreatedEvent(final String personUUID, final String loginId, final String firstName, final String lastName, final String emailId,
-			final String phoneNumber, final String customerId, final String mteid) {
+			final String phoneNumber, final String customerId, final String mteid, final String orgName) {
 		super();
 		this.personUUID = personUUID;
 		this.loginId = loginId;
@@ -39,6 +41,7 @@ public final class UserCreatedEvent implements IntegrationEvent {
 		this.phoneNumber = phoneNumber;
 		this.customerId = customerId;
 		this.mteid = mteid;
+		this.orgName = orgName;
 	}
 
 	public String getPersonUUID() {
@@ -71,5 +74,9 @@ public final class UserCreatedEvent implements IntegrationEvent {
 
 	public String getMteid() {
 		return mteid;
+	}
+
+	public String getOrgName() {
+		return orgName;
 	}
 }
