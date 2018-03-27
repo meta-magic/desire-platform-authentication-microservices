@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: dev_env
   application:
     name: authclientservice
   cloud:
