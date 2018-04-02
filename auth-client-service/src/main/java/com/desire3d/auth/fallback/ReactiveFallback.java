@@ -22,7 +22,7 @@ public abstract class ReactiveFallback {
 	 * */
 	public final DeferredResult<ResponseEntity<ResponseBean>> reactiveFallback(final String message, final String messageId) {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<ResponseEntity<ResponseBean>>();
-		final ResponseBean responseBean = new ResponseBean(false, message, messageId, HttpStatus.NOT_FOUND.value());
+		final ResponseBean responseBean = new ResponseBean(false, message, messageId);
 		deferredResult.setErrorResult(new ResponseEntity<>(responseBean, HttpStatus.OK));
 		return deferredResult;
 	}

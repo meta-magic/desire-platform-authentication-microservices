@@ -46,21 +46,6 @@ public class ResponseBean implements Serializable {
 	/**
 	 * Constructor to build exceptional response
 	 * 
-	 * e.g ResponseBean responseBean = new ResponseBean(false, error.persistence,
-	 * "Data failed to save", Arrays.asList(exception.getMessage()));
-	 * 
-	 */
-	public ResponseBean(boolean success, String errorCode, String errorMessage, List<String> errors) {
-		super();
-		this.success = success;
-		this.errorCode = errorCode;
-		this.errorMessage = errorMessage;
-		this.errors = errors;
-	}
-	
-	/**
-	 * Constructor to build exceptional response
-	 * 
 	 * e.g ResponseBean responseBean = new ResponseBean(false, "error.persistence")
 	 * 
 	 */
@@ -69,7 +54,21 @@ public class ResponseBean implements Serializable {
 		this.success = success;
 		this.errorCode = errorCode;
 	}
-
+	
+	/**
+	 * Constructor to build exceptional response
+	 * 
+	 * e.g ResponseBean responseBean = new ResponseBean(false, error.persistence,
+	 * "Data failed to save", Arrays.asList(exception.getMessage()));
+	 * 
+	 */
+	public ResponseBean(boolean success, String errorMessage, String errorCode) {
+		super();
+		this.success = success;
+		this.errorMessage = errorMessage;
+		this.errorCode = errorCode;
+	}
+	
 	public boolean isSuccess() {
 		return success;
 	}
@@ -84,6 +83,10 @@ public class ResponseBean implements Serializable {
 
 	public void setSuccessMessage(String successMessage) {
 		this.successMessage = successMessage;
+	}
+	
+	public void setErrors(List<String> errors) {
+		this.errors = errors;
 	}
 
 	public String getSuccessCode() {
