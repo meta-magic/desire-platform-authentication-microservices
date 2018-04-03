@@ -57,7 +57,7 @@ public class ReactiveServiceImpl extends ReactiveFallback implements ReactiveSer
 			@Override
 			public void onFailure(Throwable throwable) {
 				throwable.printStackTrace();
-				ResponseBean response = new ResponseBean(false, throwable.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value());
+				ResponseBean response = new ResponseBean(false, throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.toString());
 				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(response, HttpStatus.OK));
 			}
 		});

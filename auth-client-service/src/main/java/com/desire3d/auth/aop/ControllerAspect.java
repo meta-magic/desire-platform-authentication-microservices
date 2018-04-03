@@ -11,35 +11,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import com.desire3d.auth.beans.ResponseBean;
 import com.desire3d.auth.fw.service.MessageService;
 
 @Component
 @Aspect
-public class ControllerAspect 
-{
-	
+public class ControllerAspect {
+
 	@Autowired
 	private MessageService messageService;
 
 	@Around("execution(* com.desire3d.persona.controller..*.*(..))")
-	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable
-	{
+	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-		
-		String msg = joinPoint.getTarget().getClass() +" "+ signature.getName();
-		
-		System.out.println(new Date()+" Executing [ "+msg+"  ] starts");
+
+		String msg = joinPoint.getTarget().getClass() + " " + signature.getName();
+
+		System.out.println(new Date() + " Executing [ " + msg + "  ] starts");
 		Object retVal = joinPoint.proceed();
-		System.out.println(new Date()+" Execution [ "+msg+"  ] ends");
+		System.out.println(new Date() + " Execution [ " + msg + "  ] ends");
 		return retVal;
 	}
-	
+
 	@Around("execution(* com.desire3d.persona.controller..*.*(..))")
 	public Object addMessage(ProceedingJoinPoint joinPoint) {
-		
+
 		Object response = null;
 		try {
 			/* IF SERVICE RETURNS DATA SUCCCESSFULLY */
@@ -50,8 +47,8 @@ public class ControllerAspect
 				if (responseBean.isSuccess()) {
 					try {
 						String message = messageService.getMessage(responseBean.getSuccessCode());
-						if(message!=null){
-							responseBean.setSuccessMessage(message);	
+						if (message != null) {
+							responseBean.setSuccessMessage(message);
 						}
 					} catch (IOException e) {
 						// ADD LOG
@@ -59,8 +56,8 @@ public class ControllerAspect
 				} else {
 					try {
 						String message = messageService.getMessage(responseBean.getErrorCode());
-						if(message!=null){
-							responseBean.setErrorMessage(message);	
+						if (message != null) {
+							responseBean.setErrorMessage(message);
 						}
 					} catch (IOException e) {
 						// ADD LOG
@@ -76,7 +73,7 @@ public class ControllerAspect
 				// ADD LOG
 				message = "The service failed to respond";
 			}
-			ResponseBean responseBean = new ResponseBean(false, message, "error.global", 404);
+			ResponseBean responseBean = new ResponseBean(false, message, "error.global");
 			return new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK);
 
 		}
