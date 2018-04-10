@@ -20,5 +20,5 @@ cp -rf target/auth-client-service-0.0.1-SNAPSHOT.war auth-loba/loba/
 cd auth-loba/loba/  && rm -rf auth-client && unzip -qq  auth-client-service-0.0.1-SNAPSHOT.war -d auth-client && rm -rf auth-client-service-0.0.1-SNAPSHOT.war
 
 
-cd ../ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
+cd ../ && git add loba && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
 cd\
