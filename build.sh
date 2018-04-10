@@ -12,8 +12,8 @@ cd auth-service/ && mvn clean install -Dmaven.test.skip=true
 git clone https://deepali-arvind:magic%2312@github.com/meta-magic/auth-service-docker.git 
 
 
-cp -rf target/auth-service-0.0.1-SNAPSHOT.war ../auth-service-docker/auth/
+cp -rf target/auth-service-0.0.1-SNAPSHOT.war auth-service-docker/auth/
 
-cd ../auth-service/auth/ && rm -rf auth-service && unzip -qq auth-service-0.0.1-SNAPSHOT.war -d auth-service && rm -rf auth-service-0.0.1-SNAPSHOT.war
+cd auth-service/auth/ && rm -rf auth-service && unzip -qq auth-service-0.0.1-SNAPSHOT.war -d auth-service && rm -rf auth-service-0.0.1-SNAPSHOT.war
 
-cd ../auth-service/ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
+cd auth-service/ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
