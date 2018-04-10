@@ -10,7 +10,8 @@ sed -i "s|<property name="javax.jdo.option.ConnectionPassword" value="postgres" 
 cd auth-service/ && mvn clean install -Dmaven.test.skip=true
 
 git clone https://deepali-arvind:magic%2312@github.com/meta-magic/auth-service-docker.git 
-
+pwd
+ls -la
 
 cp -rf target/auth-service-0.0.1-SNAPSHOT.war auth-service-docker/auth/
 
