@@ -20,7 +20,7 @@ cd auth-service-docker/auth/ && rm -rf auth-service && unzip -qq auth-service-0.
 sed -i  "s|localhost:8081|config.desire3d.com:5030|g" auth-service/WEB-INF/classes/bootstrap.yml
 sed -i  "s|active: dev_env|active: qa_env|g" auth-service/WEB-INF/classes/bootstrap.yml
 sed -i "s|jdbc:postgresql:|jdbc:postgresql://db.desire3d.tech:8432/|g" auth-service/WEB-INF/classes/META-INF/persistence.xml
-sed -i "s|<property name="javax.jdo.option.ConnectionPassword" value="postgres" />|<property name="javax.jdo.option.ConnectionPassword" value="Meta#2k.18" />|g" auth-service/WEB-INF/classes/META-INF/persistence.xml
+sed -i "s|<property name="javax.jdo.option.ConnectionPassword" value="postgres" />|<property name="javax.jdo.option.ConnectionPassword" value="Meta\#2k.18" />|g" auth-service/WEB-INF/classes/META-INF/persistence.xml
 
 cd ../ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
 cd\
