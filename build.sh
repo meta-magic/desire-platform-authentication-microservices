@@ -1,4 +1,7 @@
 #!/bin/bash
+
+COMMIT_TIMESTAMP=`date +'%Y-%m-%d %H:%M:%S %Z'`
+
 sed -i  "s|localhost:8081|config.desire3d.com:5030|g" auth-service/WEB-INF/classes/bootstrap.yml
 sed -i  "s|active: dev_env|active: qa_env|g" auth-service/WEB-INF/classes/bootstrap.yml
 sed -i "s|jdbc:postgresql:|jdbc:postgresql://db.desire3d.tech:8432/|g" auth-service/WEB-INF/classes/META-INF/persistence.xml
@@ -13,4 +16,4 @@ cp -rf auth-service/target/auth-service-0.0.1-SNAPSHOT.war auth-service-docker/a
 
 cd auth-service/auth/ && rm -rf auth-service && unzip -qq auth-service-0.0.1-SNAPSHOT.war -d auth-service && rm -rf auth-service-0.0.1-SNAPSHOT.war
 
-cd auth-service/ && git add auth && git commit -m `$1` && git push
+cd auth-service/ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
