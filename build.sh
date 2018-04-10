@@ -15,6 +15,6 @@ ls -la
 
 cp -rf target/auth-service-0.0.1-SNAPSHOT.war auth-service-docker/auth/
 
-cd auth-service/auth/ && rm -rf auth-service && unzip -qq auth-service-0.0.1-SNAPSHOT.war -d auth-service && rm -rf auth-service-0.0.1-SNAPSHOT.war
+cd auth-service-docker/auth/ && rm -rf auth-service && unzip -qq auth-service-0.0.1-SNAPSHOT.war -d auth-service && rm -rf auth-service-0.0.1-SNAPSHOT.war
 
-cd auth-service/ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
+cd auth-service-docker/ && git add auth && git commit -m "Automated commit on ${COMMIT_TIMESTAMP}" && git push
