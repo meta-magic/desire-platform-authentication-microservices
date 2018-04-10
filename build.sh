@@ -1,4 +1,7 @@
 #!/bin/bash
+git config --global user.email "deepali.arvind@metamagic.in"
+git config --global user.name "deepali-arvind"
+
 apt-get -y install zip unzip
 
 COMMIT_TIMESTAMP=`date +'%Y-%m-%d %H:%M:%S %Z'`
