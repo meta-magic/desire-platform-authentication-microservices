@@ -26,14 +26,15 @@ public class TokenServiceImpl implements TokenService {
 	private Long tokenValidity = null;
 
 	@Override
-	public String generateToken(String mteid, String loginId, String userId, String personId, String appSessionId) {
+	public String generateToken(String mteid, String loginId, String userId, String personId, String appSessionId, Integer subscriptionType) {
 		JSONObject json = new JSONObject();
 		try {
-			json.put("mteid", mteid);
-			json.put("loginId", loginId);
-			json.put("userId", userId);
-			json.put("personId", personId);
-			json.put("appSessionId", appSessionId);
+			json.put(MTE_ID_KEY, mteid);
+			json.put(LOGIN_ID_KEY, loginId);
+			json.put(USER_ID_KEY, userId);
+			json.put(PERSON_ID_KEY, personId);
+			json.put(APP_SESSION_ID_KEY, appSessionId);
+			json.put(SUBSCRIPTION_TYPE_KEY, subscriptionType);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -52,7 +53,6 @@ public class TokenServiceImpl implements TokenService {
 				.signWith(SignatureAlgorithm.HS512, tokenKey).compact();
 	}
 
-	@Override
 	/** 
 	 * method to create JWT token using json object as a payload and expiry in miliseconds 
 	 * 
@@ -61,6 +61,7 @@ public class TokenServiceImpl implements TokenService {
 	 * 
 	 * @return JWT token
 	 * */
+	@Override
 	public String generateToken(JSONObject tokenJson, Long tokenExpiry) {
 		return generateTokenFromJson(tokenJson, tokenExpiry);
 	}

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.desire3d.auth.beans.LoginInfoHelperBean;
 import com.desire3d.auth.domainservice.HelperDomainService;
+import com.desire3d.auth.utils.Constants;
 import com.desire3d.channel.UserCreationChannel;
 import com.desire3d.event.UserLoginCreatedEvent;
 
@@ -27,7 +28,7 @@ public class UserLoginCreatedEventPublisher extends HelperDomainService {
 	private UserCreationChannel userCreationChannel;
 
 	public boolean publish(final UserLoginCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) {
-		Message<UserLoginCreatedEvent> message = MessageBuilder.withPayload(event).setHeader("tokenId", prepareToken(loginInfoHelperBean)).build();
+		Message<UserLoginCreatedEvent> message = MessageBuilder.withPayload(event).setHeader(Constants.TOKEN_ID_KEY, prepareToken(loginInfoHelperBean)).build();
 		boolean status = userCreationChannel.userCreationOutputChannel().send(message);
 		logger.info("Published message '{}' with status '{}' ", message, status);
 		return status;

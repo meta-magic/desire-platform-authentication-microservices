@@ -46,8 +46,9 @@ public final class LoginDomainService {
 
 	@Autowired
 	private UserLoginCreatedEventPublisher userLoginCreatedEventPublisher;
-	
+
 	private LoginInfoHelperBean loginInfoHelperBean = null;
+
 	/**
 	 * Method used to create user login after creation of user account 
 	 * 
@@ -73,6 +74,7 @@ public final class LoginDomainService {
 		UserSchema userSchema = new UserSchema();
 		userSchema.setFirstTimeLogin(true);
 		userSchema.setUserType("1");
+		userSchema.setSubscriptionType(event.getSubscriptionType().getValue());
 		userSchema.setMteid(loginInfoHelperBean.getMteid());
 		userSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		return userSchemaCommandRepository.save(userSchema);
@@ -85,8 +87,7 @@ public final class LoginDomainService {
 	 * @return saved {@link AuthSchema} 
 	 * @throws PersistenceFailureException 
 	 * */
-	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema)
-			throws PersistenceFailureException {
+	private AuthSchema createAuthSchema(final UserCreatedEvent event, final UserSchema userSchema) throws PersistenceFailureException {
 		AuthSchema authSchema = new AuthSchema(loginInfoHelperBean.getMteid(), event.getLoginId(), userSchema.getUserUUID(), event.getPersonUUID());
 		authSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		return authSchemaCommandRepository.save(authSchema);
@@ -100,8 +101,7 @@ public final class LoginDomainService {
 	 * @return created password
 	 * @throws Exception 
 	 * */
-	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema)
-			throws Throwable {
+	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema) throws Throwable {
 		String password = event.getFirstName() + "@" + (new Random().nextInt(900) + 100);
 		PasswordSchema passwordSchema = new PasswordSchema(loginInfoHelperBean.getMteid(), userSchema.getUserUUID(), createPasswordHash(password));
 		passwordSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
@@ -130,7 +130,7 @@ public final class LoginDomainService {
 	private void publishLoginCreatedEvents(final UserCreatedEvent event, final String password, final String userId) {
 		publishLoginIdNotification(event);
 		publishPasswordNotification(event, password);
-		publishUserLoginCreatedEvent(userId);
+		publishUserLoginCreatedEvent(event, userId);
 	}
 
 	/**
@@ -163,11 +163,13 @@ public final class LoginDomainService {
 	}
 
 	/**
-	 * Method used publish {@link UserLoginCreatedEvent} for User role mapping & Instance creation
+	 * Method used publish {@link UserLoginCreatedEvent} for User Instance creation & role mapping & Instance creation
 	 * 
+	 * @param event {@link UserCreatedEvent}
 	 * @param userId
 	 * */
-	private boolean publishUserLoginCreatedEvent(final String userId) {
-		return userLoginCreatedEventPublisher.publish(new UserLoginCreatedEvent(userId), loginInfoHelperBean);
+	private boolean publishUserLoginCreatedEvent(final UserCreatedEvent event, final String userId) {
+		return userLoginCreatedEventPublisher.publish(new UserLoginCreatedEvent(userId, event.getPersonUUID(), event.getFirstName(), event.getLastName(),
+				event.getCustomerId(), event.getMteid(), event.getOrgName(), event.getSubscriptionType()), loginInfoHelperBean);
 	}
 }

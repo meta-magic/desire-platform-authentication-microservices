@@ -17,12 +17,15 @@ public class LoginInfoHelperBean {
 
 	private String appSessionId;
 
-	public void setProperty(String mteid, String loginId, String userId, String personId, String appSessionId) {
+	private Integer subscriptionType;
+
+	public void setProperty(String mteid, String loginId, String userId, String personId, String appSessionId, Integer subscriptionType) {
 		this.mteid = mteid;
 		this.loginId = loginId;
 		this.userId = userId;
 		this.personId = personId;
 		this.appSessionId = appSessionId;
+		this.subscriptionType = subscriptionType;
 	}
 
 	public String getMteid() {
@@ -45,9 +48,17 @@ public class LoginInfoHelperBean {
 		return appSessionId;
 	}
 
+	public Integer getSubscriptionType() {
+		return subscriptionType;
+	}
+
+	public void setSubscriptionType(Integer subscriptionType) {
+		this.subscriptionType = subscriptionType;
+	}
+
 	@Override
 	public String toString() {
 		return "LoginInfoHelperBean [mteid=" + mteid + ", loginId=" + loginId + ", userId=" + userId + ", personId=" + personId + ", appSessionId="
-				+ appSessionId + "]";
+				+ appSessionId + ", subscriptionType=" + subscriptionType + "]";
 	}
 }

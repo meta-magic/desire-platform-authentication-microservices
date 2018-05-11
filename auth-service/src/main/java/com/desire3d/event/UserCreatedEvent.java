@@ -1,5 +1,7 @@
 package com.desire3d.event;
 
+import com.desire3d.auth.utils.SubscriptionType;
+
 /**
  * @author Mahesh Pardeshi
  *
@@ -25,13 +27,15 @@ public final class UserCreatedEvent implements IntegrationEvent {
 	private String mteid;
 
 	private String orgName;
-	
+
+	private SubscriptionType subscriptionType;
+
 	public UserCreatedEvent() {
 		super();
 	}
 
 	public UserCreatedEvent(final String personUUID, final String loginId, final String firstName, final String lastName, final String emailId,
-			final String phoneNumber, final String customerId, final String mteid, final String orgName) {
+			final String phoneNumber, final String customerId, final String mteid, final String orgName, final SubscriptionType subscriptionType) {
 		super();
 		this.personUUID = personUUID;
 		this.loginId = loginId;
@@ -42,6 +46,7 @@ public final class UserCreatedEvent implements IntegrationEvent {
 		this.customerId = customerId;
 		this.mteid = mteid;
 		this.orgName = orgName;
+		this.subscriptionType = subscriptionType;
 	}
 
 	public String getPersonUUID() {
@@ -78,5 +83,9 @@ public final class UserCreatedEvent implements IntegrationEvent {
 
 	public String getOrgName() {
 		return orgName;
+	}
+
+	public SubscriptionType getSubscriptionType() {
+		return subscriptionType;
 	}
 }

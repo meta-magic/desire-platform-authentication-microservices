@@ -27,7 +27,7 @@ public class HelperDomainService {
 	 * @return token id containing user auth information */
 	protected String prepareToken(final LoginInfoHelperBean loginInfoHelperBean) {
 		return tokenService.generateToken(loginInfoHelperBean.getMteid(), loginInfoHelperBean.getLoginId(), loginInfoHelperBean.getUserId(),
-				loginInfoHelperBean.getPersonId(), loginInfoHelperBean.getAppSessionId());
+				loginInfoHelperBean.getPersonId(), loginInfoHelperBean.getAppSessionId(), loginInfoHelperBean.getSubscriptionType());
 	}
 
 	/** METHOD TO DESERIALIZE & AUTHENTICATE JWT TOKEN 
@@ -39,8 +39,9 @@ public class HelperDomainService {
 		try {
 			JSONObject tokenData = tokenService.getTokenData(tokenId);
 			LoginInfoHelperBean loginInfoHelperBean = new LoginInfoHelperBean();
-			loginInfoHelperBean.setProperty(tokenData.getString("mteid"), tokenData.getString("loginId"), tokenData.getString("userId"),
-					tokenData.getString("personId"), tokenData.getString("appSessionId"));
+			loginInfoHelperBean.setProperty(tokenData.getString(TokenService.APP_SESSION_ID_KEY), tokenData.getString(TokenService.LOGIN_ID_KEY),
+					tokenData.getString(TokenService.USER_ID_KEY), tokenData.getString(TokenService.PERSON_ID_KEY),
+					tokenData.getString(TokenService.APP_SESSION_ID_KEY), tokenData.getInt(TokenService.SUBSCRIPTION_TYPE_KEY));
 			return loginInfoHelperBean;
 		} catch (ExpiredJwtException e) {
 			e.printStackTrace();

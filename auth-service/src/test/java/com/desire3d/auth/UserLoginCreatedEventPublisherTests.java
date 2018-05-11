@@ -1,9 +1,5 @@
 package com.desire3d.auth;
 
-import java.util.UUID;
-
-import com.desire3d.auth.beans.LoginInfoHelperBean;
-import com.desire3d.event.UserLoginCreatedEvent;
 import com.desire3d.event.publisher.UserLoginCreatedEventPublisher;
 
 /**
@@ -19,7 +15,7 @@ public class UserLoginCreatedEventPublisherTests {
 
 //	@Test
 	public void test() {
-		publisher.publish(new UserLoginCreatedEvent(UUID.randomUUID().toString()), new LoginInfoHelperBean());
+//		publisher.publish(new UserLoginCreatedEvent(), new LoginInfoHelperBean());
 	}
 
 }

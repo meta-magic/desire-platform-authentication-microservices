@@ -48,8 +48,9 @@ public class TokenAspect {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>(60000L);
 		try {
 			JSONObject jsonObject = tokenService.getTokenData((String) request.getHeader("tokenid"));
-			loginInfoHelperBean.setProperty(jsonObject.getString("mteid"), jsonObject.getString("loginId"), jsonObject.getString("userId"),
-					jsonObject.getString("personId"), jsonObject.getString("appSessionId"));
+			loginInfoHelperBean.setProperty(jsonObject.getString(TokenService.MTE_ID_KEY), jsonObject.getString(TokenService.LOGIN_ID_KEY),
+					jsonObject.getString(TokenService.USER_ID_KEY), jsonObject.getString(TokenService.PERSON_ID_KEY),
+					jsonObject.getString(TokenService.APP_SESSION_ID_KEY), jsonObject.getInt(TokenService.SUBSCRIPTION_TYPE_KEY));
 		} catch (ExpiredJwtException e) {
 			ResponseBean responseBean = new ResponseBean(false, ExceptionID.TOKEN_EXPIRED, messageService.getMessageById(ExceptionID.TOKEN_EXPIRED),
 					Arrays.asList(e.getMessage()));

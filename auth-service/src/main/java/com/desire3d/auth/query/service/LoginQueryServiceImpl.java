@@ -35,7 +35,10 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 
 	@Autowired
 	private LoginInfoHelperBean loginInfoHelperBean;
-
+	
+//	@Autowired
+//	private UserAuthenticationEventPublisher publisher;
+	
 	@Override
 	public boolean userLogout(Double latitude, Double longitude, HttpServletRequest request) throws Throwable {
 
@@ -49,7 +52,10 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 			appSession.setIsActive(false);
 			appSession.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
 			appSessionRepo.update(appSession);
-
+			
+			/** REQUEST TO STOP USER INSTANCE */
+			// publisher.publish(new UserLoggedoutEvent(loginInfoHelperBean.getPersonId()));
+			
 			// ADD REAL DATA FROM REQUEST
 			int loginformfactor = 0;
 			if (request.getHeader("User-Agent").indexOf("Mobile") != -1) {

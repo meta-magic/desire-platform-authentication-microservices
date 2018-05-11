@@ -59,6 +59,9 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	@Autowired
 	private LoginDomainService loginDomainService;
 
+//	@Autowired
+//	private UserAuthenticationEventPublisher publisher;
+
 	@Override
 	public boolean validateLoginId(String loginId) throws Throwable {
 		if (loginId == null) {
@@ -87,13 +90,15 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 			loginHistory(authResp, appSession, request, latitude, longitude);
 			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getLoginUUID(),
-					authResp.getAuthSchema().getUserUUID(), authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId());
+					authResp.getAuthSchema().getUserUUID(), authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId(), authResp.getUserSchema().getSubscriptionType());
 
 			LoginResponseDto loginResponse = new LoginResponseDto(appSession.getAppSessionId(), authResp.getUserSchema().isFirstTimeLogin(),
 					authResp.getUserSchema().getAccountBlocked(), authResp.getUserSchema().isAccountExpired(), authResp.getUserSchema().isChangePassword(),
 					tokenid);
 
-			System.out.println("loginRespose********" + loginResponse);
+			// publishing user logged in event
+			// publisher.publish(new UserLoggedinEvent(authResp.getAuthSchema().getPersonUUID()));
+
 			return loginResponse;
 		} catch (Throwable e) {
 			this.loginFailure(loginId, ((BaseException) e).getMessageId(), longitude, longitude, request);

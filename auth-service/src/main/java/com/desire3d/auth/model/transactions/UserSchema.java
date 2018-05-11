@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 
 import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.desire3d.auth.utils.SubscriptionType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "userschema", detachable = "true")
@@ -50,6 +51,10 @@ public class UserSchema implements Serializable, CommonValidator {
 	@Persistent
 	@NotNull(message = "Change Password should not be null")
 	private Boolean changePassword = false;
+	
+	@Persistent
+	@NotNull(message = "Subscription type should not be null")
+	private Integer subscriptionType = SubscriptionType.DEFAULT_SUBSCRIPTION.getValue();
 
 	@Persistent
 	private Boolean isActive = true;
@@ -129,6 +134,14 @@ public class UserSchema implements Serializable, CommonValidator {
 
 	public void setChangePassword(Boolean changePassword) {
 		this.changePassword = changePassword;
+	}
+
+	public Integer getSubscriptionType() {
+		return subscriptionType;
+	}
+
+	public void setSubscriptionType(Integer subscriptionType) {
+		this.subscriptionType = subscriptionType;
 	}
 
 	public Boolean getIsActive() {
