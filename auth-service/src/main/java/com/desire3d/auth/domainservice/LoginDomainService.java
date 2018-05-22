@@ -3,7 +3,6 @@ package com.desire3d.auth.domainservice;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import com.desire3d.auth.model.transactions.PasswordSchema;
 import com.desire3d.auth.model.transactions.UserSchema;
 import com.desire3d.auth.utils.Constants;
 import com.desire3d.auth.utils.HashingAlgorithms;
+import com.desire3d.auth.utils.PasswordGenerator;
 import com.desire3d.event.EmailNotificationEvent;
 import com.desire3d.event.UserCreatedEvent;
 import com.desire3d.event.UserLoginCreatedEvent;
@@ -102,7 +102,7 @@ public final class LoginDomainService {
 	 * @throws Exception 
 	 * */
 	private String createPasswordSchema(final UserCreatedEvent event, final UserSchema userSchema) throws Throwable {
-		String password = event.getFirstName() + "@" + (new Random().nextInt(900) + 100);
+		String password = PasswordGenerator.generatePassword();
 		PasswordSchema passwordSchema = new PasswordSchema(loginInfoHelperBean.getMteid(), userSchema.getUserUUID(), createPasswordHash(password));
 		passwordSchema.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(), loginInfoHelperBean.getUserId(), new Date()));
 		passwordSchemaCommandRepository.save(passwordSchema);
