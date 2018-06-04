@@ -6,5 +6,7 @@ import com.desire3d.auth.model.transactions.RecoveryToken;
 public interface RecoveryTokenQueryRepository {
 
 	public RecoveryToken findById(String tokenId) throws DataRetrievalFailureException;
+	
+	public RecoveryToken findByToken(String token) throws DataRetrievalFailureException;
 
 }

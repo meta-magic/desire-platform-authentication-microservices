@@ -38,7 +38,6 @@ import com.desire3d.event.TokenGeneratedEvent;
 import com.desire3d.event.publisher.TokenGeneratedEventPublisher;
 
 import atg.taglib.json.util.JSONException;
-import atg.taglib.json.util.JSONObject;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Service
@@ -159,14 +158,30 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 
 	private RecoveryToken generateRecoveryToken(String loginId) throws PersistenceFailureException, DataRetrievalFailureException, JSONException {
 		AuthSchema authschema = authSchemaQueryRepository.findAuthSchemaByLoginId(loginId);
-		String tokenId = UUID.randomUUID().toString();
-		JSONObject tokenJson = new JSONObject();
-		tokenJson.put("tokenId", tokenId);
-		String token = tokenService.generateToken(tokenJson, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY);
-		RecoveryToken recoveryToken = new RecoveryToken(tokenId, token, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY, authschema.getPersonUUID());
-		return recoveryTokenCommandRepository.save(recoveryToken);
+//		String tokenId = UUID.randomUUID().toString();
+//		JSONObject tokenJson = new JSONObject();
+//		tokenJson.put("tokenId", tokenId);
+//		String token = tokenService.generateToken(tokenJson, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY);
+//		String generatedToken=tokenId.substring(tokenId.length()-8, tokenId.length());
+	
+		RecoveryToken recoveryTokenObj=this.checkDuplicateToken(authschema);
+		AuditDetails auditDetails=new AuditDetails();
+		auditDetails.setCreatedTime(new Date());
+		recoveryTokenObj.setAuditDetails(auditDetails);
+		return recoveryTokenCommandRepository.save(recoveryTokenObj);
 	}
 
+	//THIS METHOD GENERATE UNIQUE TOKEN AND VALIDATE  ALREADY PRESENT OR NOT 
+	private RecoveryToken checkDuplicateToken(AuthSchema authschema) throws DataRetrievalFailureException{
+		String tokenId = UUID.randomUUID().toString();
+		String generatedToken=tokenId.substring(tokenId.length()-8, tokenId.length());
+		RecoveryToken recoveryToken=recoveryTokenQueryRepository.findByToken(generatedToken);
+		while(recoveryToken!=null) {
+			this.checkDuplicateToken(authschema);
+		}
+		RecoveryToken recoveryTokenObj = new RecoveryToken(UUID.randomUUID().toString(), generatedToken, Constants.PASSWORD_RECOVERY_TOKEN_EXPIRY, authschema.getPersonUUID());
+		return recoveryTokenObj;
+	}
 	private boolean validateToken(final ForgotPasswordDTO forgotPasswordDTO)
 			throws PasswordRecoveryFailureException, DataRetrievalFailureException, DomainServiceFailureException {
 		if (forgotPasswordDTO.getToken() == null) {
@@ -174,11 +189,22 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 		}
 		boolean valid = false;
 		try {
-			JSONObject jsonObject = tokenService.getTokenData(forgotPasswordDTO.getToken());
-			RecoveryToken token = recoveryTokenQueryRepository.findById(jsonObject.getString("tokenId"));
-			if (token != null && token.getTokenId().equals(jsonObject.getString(Constants.TOKEN_ID_KEY))) {
-				valid = true;
+//			JSONObject jsonObject = tokenService.getTokenData(forgotPasswordDTO.getToken());
+			RecoveryToken recoveryToken = recoveryTokenQueryRepository.findByToken(forgotPasswordDTO.getToken());
+			if(recoveryToken!=null ) {
+				try {
+					this.validateTokenExpiry(recoveryToken);
+				}catch (Exception e) {
+					throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_EXPIRED, e);
+				}
+				valid=true;
+			}else {
+				valid=false;
+				throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_INVALID);
 			}
+//			if (token != null && token.getTokenId().equals(jsonObject.getString(Constants.TOKEN_ID_KEY))) {
+//				valid = true;
+//			}
 		} catch (ExpiredJwtException e) {
 			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_EXPIRED, e);
 		} catch (IllegalArgumentException e) {
@@ -187,6 +213,17 @@ public class PasswordManagementServiceImpl implements PasswordManagementService 
 			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_INVALID, e);
 		}
 		return valid;
+	}
+	
+	// THIS METHOD IS VALIDATING TOKEN 	
+	private void validateTokenExpiry(final RecoveryToken recoveryToken) throws PasswordRecoveryFailureException{
+		long tokenCreatedTime=recoveryToken.getAuditDetails().getCreatedTime().getTime();
+		long nowTime=new Date().getTime();
+		long diff=nowTime-tokenCreatedTime;
+		 long diffMinutes = diff / (60 * 1000) % 60;
+		if(diffMinutes>10) {
+			throw new PasswordRecoveryFailureException(ExceptionID.RECOVERYTOKEN_EXPIRED);
+		}
 	}
 
 }

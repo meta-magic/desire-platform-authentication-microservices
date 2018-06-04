@@ -8,7 +8,9 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.desire3d.auth.model.AuditDetails;
 import com.desire3d.auth.utils.CommonValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PersistenceCapable(table = "recoverytoken", detachable = "true")
 public class RecoveryToken implements Serializable, CommonValidator {
@@ -25,7 +27,7 @@ public class RecoveryToken implements Serializable, CommonValidator {
 	@NotNull(message = "token should not be null")
 	@Size(min = 1, max = 1024, message = "token must be between 1 and 1024 characters")
 	private String token;
-	
+
 	@Persistent
 	@NotNull(message = "token expiry should not be null")
 	private Long tokenExpiry;
@@ -34,6 +36,10 @@ public class RecoveryToken implements Serializable, CommonValidator {
 	@NotNull(message = "personId should not be null")
 	@Size(min = 1, max = 255, message = "personId must be between 1 and 255 characters")
 	private String personId;
+
+	@Persistent(defaultFetchGroup = "true")
+	@JsonIgnore
+	private AuditDetails auditDetails;
 
 	public RecoveryToken() {
 		super();
@@ -79,8 +85,17 @@ public class RecoveryToken implements Serializable, CommonValidator {
 		this.personId = personId;
 	}
 
+	public AuditDetails getAuditDetails() {
+		return auditDetails;
+	}
+
+	public void setAuditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+	}
+
 	@Override
 	public String toString() {
-		return "RecoveryToken [tokenId=" + tokenId + ", token=" + token + ", tokenExpiry=" + tokenExpiry + ", personId=" + personId + "]";
+		return "RecoveryToken [tokenId=" + tokenId + ", token=" + token + ", tokenExpiry=" + tokenExpiry + ", personId="
+				+ personId + "]";
 	}
 }
