@@ -8,7 +8,7 @@ package com.desire3d.auth.utils;
 public enum SubscriptionType {
 	
 	DEFAULT_SUBSCRIPTION(0),
-	AMEXIO_CANVAS_LITE(1),
+	AMEXIO_CANVAS_PE(1),
 	AMEXIO_CANVAS_SE(2),
 	AMEXIO_CANVAS_EE(3),
 	DROIT_STUDIO_SE(4),
