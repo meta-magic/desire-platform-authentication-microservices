@@ -39,7 +39,7 @@ public class HelperDomainService {
 		try {
 			JSONObject tokenData = tokenService.getTokenData(tokenId);
 			LoginInfoHelperBean loginInfoHelperBean = new LoginInfoHelperBean();
-			loginInfoHelperBean.setProperty(tokenData.getString(TokenService.APP_SESSION_ID_KEY), tokenData.getString(TokenService.LOGIN_ID_KEY),
+			loginInfoHelperBean.setProperty(tokenData.getString(TokenService.MTE_ID_KEY), tokenData.getString(TokenService.LOGIN_ID_KEY),
 					tokenData.getString(TokenService.USER_ID_KEY), tokenData.getString(TokenService.PERSON_ID_KEY),
 					tokenData.getString(TokenService.APP_SESSION_ID_KEY), tokenData.getInt(TokenService.SUBSCRIPTION_TYPE_KEY));
 			return loginInfoHelperBean;
