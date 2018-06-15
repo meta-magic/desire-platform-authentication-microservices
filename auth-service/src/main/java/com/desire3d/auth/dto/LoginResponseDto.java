@@ -18,8 +18,10 @@ public class LoginResponseDto implements Serializable {
 
 	private String tokenid;
 
-	public LoginResponseDto(String appSessionId, Boolean firstTimeLogin, Integer accountBlocked, Boolean accountExpired, Boolean changePassword,
-			String tokenid) {
+	private Integer sessionTime;
+
+	public LoginResponseDto(String appSessionId, Boolean firstTimeLogin, Integer accountBlocked, Boolean accountExpired,
+			Boolean changePassword, String tokenid, Integer sessionTime) {
 		super();
 		this.appSessionId = appSessionId;
 		this.firstTimeLogin = firstTimeLogin;
@@ -27,6 +29,11 @@ public class LoginResponseDto implements Serializable {
 		this.accountExpired = accountExpired;
 		this.changePassword = changePassword;
 		this.tokenid = tokenid;
+		this.sessionTime = sessionTime;
+	}
+
+	public Integer getSessionTime() {
+		return sessionTime;
 	}
 
 	public String getAppSessionId() {

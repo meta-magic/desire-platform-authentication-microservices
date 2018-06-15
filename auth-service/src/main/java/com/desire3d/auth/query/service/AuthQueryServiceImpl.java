@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.desire3d.auth.domainservice.LoginDomainService;
@@ -59,8 +60,11 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	@Autowired
 	private LoginDomainService loginDomainService;
 
-//	@Autowired
-//	private UserAuthenticationEventPublisher publisher;
+	// @Autowired
+	// private UserAuthenticationEventPublisher publisher;
+
+	@Value("${session.expiry}")
+	private Integer sessionexpiry = null;
 
 	@Override
 	public boolean validateLoginId(String loginId) throws Throwable {
@@ -76,7 +80,8 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	}
 
 	@Override
-	public LoginResponseDto authenticate(String loginId, String password, Double latitude, Double longitude, HttpServletRequest request) throws Throwable {
+	public LoginResponseDto authenticate(String loginId, String password, Double latitude, Double longitude,
+			HttpServletRequest request) throws Throwable {
 		if (loginId == null || password == null) {
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
@@ -86,18 +91,22 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			AuthenticateResponse authResp = this.processLoginRequest(loginId, encodedPassword, latitude, longitude);
 
 			AppSession appSession = this.createAppSessionId(authResp);
-			// CREATE LOGIN HISTORY			return false;
+			// CREATE LOGIN HISTORY return false;
 
 			loginHistory(authResp, appSession, request, latitude, longitude);
-			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getLoginUUID(),
-					authResp.getAuthSchema().getUserUUID(), authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId(), authResp.getUserSchema().getSubscriptionType());
+			String tokenid = tokenService.generateToken(authResp.getAuthSchema().getMteid(),
+					authResp.getAuthSchema().getLoginUUID(), authResp.getAuthSchema().getUserUUID(),
+					authResp.getAuthSchema().getPersonUUID(), appSession.getAppSessionId(),
+					authResp.getUserSchema().getSubscriptionType());
 
-			LoginResponseDto loginResponse = new LoginResponseDto(appSession.getAppSessionId(), authResp.getUserSchema().isFirstTimeLogin(),
-					authResp.getUserSchema().getAccountBlocked(), authResp.getUserSchema().isAccountExpired(), authResp.getUserSchema().isChangePassword(),
-					tokenid);
+			LoginResponseDto loginResponse = new LoginResponseDto(appSession.getAppSessionId(),
+					authResp.getUserSchema().isFirstTimeLogin(), authResp.getUserSchema().getAccountBlocked(),
+					authResp.getUserSchema().isAccountExpired(), authResp.getUserSchema().isChangePassword(), tokenid,
+					sessionexpiry);
 
 			// publishing user logged in event
-			// publisher.publish(new UserLoggedinEvent(authResp.getAuthSchema().getPersonUUID()));
+			// publisher.publish(new
+			// UserLoggedinEvent(authResp.getAuthSchema().getPersonUUID()));
 
 			return loginResponse;
 		} catch (Throwable e) {
@@ -107,23 +116,26 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 	}
 
-	//SAVING LOGIN HISTORY	
-	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession, HttpServletRequest request, Double latitude, Double longitude)
-			throws PersistenceFailureException {
+	// SAVING LOGIN HISTORY
+	private LoginHistory loginHistory(AuthenticateResponse authResp, AppSession appSession, HttpServletRequest request,
+			Double latitude, Double longitude) throws PersistenceFailureException {
 		int loginformfactor = 0;
 		if (request.getHeader("User-Agent").indexOf("Mobile") != -1) {
 			loginformfactor = Constants.MOBILE_AGENT;
 		} else {
 			loginformfactor = Constants.DESKTOP_AGENT;
 		}
-		LoginHistory loginHistory = new LoginHistory(authResp.getAuthSchema().getMteid(), authResp.getAuthSchema().getUserUUID(), appSession.getAppSessionId(),
-				1, loginformfactor, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude, longitude);
+		LoginHistory loginHistory = new LoginHistory(authResp.getAuthSchema().getMteid(),
+				authResp.getAuthSchema().getUserUUID(), appSession.getAppSessionId(), 1, loginformfactor,
+				request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude,
+				longitude);
 
 		// SET HELPER CLASS DATA
 		loginHistory.setIsActive(true);
 		if (authResp.getUserSchema().getAuditDetails() != null) {
-			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()),
-					authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()));
+			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()), authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()));
 			loginHistory.setAuditDetails(auditDetails);
 		}
 		loginHistoryRepo.save(loginHistory);
@@ -131,11 +143,13 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		return loginHistory;
 	}
 
-	private LoginFailure loginFailure(String loginId, String errorId, Double latitude, Double longitude, HttpServletRequest request)
-			throws PersistenceFailureException {
-		LoginFailure loginFailure = new LoginFailure(loginId, "", request.getSession().getId(), errorId, request.getHeader("host"),
-				request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude, longitude);
-		AuditDetails auditDetails = new AuditDetails("", new Date(System.currentTimeMillis()), "", new Date(System.currentTimeMillis()));
+	private LoginFailure loginFailure(String loginId, String errorId, Double latitude, Double longitude,
+			HttpServletRequest request) throws PersistenceFailureException {
+		LoginFailure loginFailure = new LoginFailure(loginId, "", request.getSession().getId(), errorId,
+				request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude,
+				longitude);
+		AuditDetails auditDetails = new AuditDetails("", new Date(System.currentTimeMillis()), "",
+				new Date(System.currentTimeMillis()));
 		loginFailure.setAuditDetails(auditDetails);
 		loginFailureRepo.save(loginFailure);
 		return loginFailure;
@@ -147,8 +161,9 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		appSession.setAppData("AppData");
 		appSession.setIsActive(true);
 		if (authResp.getUserSchema().getAuditDetails() != null) {
-			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()),
-					authResp.getUserSchema().getAuditDetails().getCreatedBy(), new Date(System.currentTimeMillis()));
+			AuditDetails auditDetails = new AuditDetails(authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()), authResp.getUserSchema().getAuditDetails().getCreatedBy(),
+					new Date(System.currentTimeMillis()));
 			appSession.setAuditDetails(auditDetails);
 		}
 		appSessionRepo.save(appSession);
@@ -156,7 +171,8 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	}
 
 	@SuppressWarnings("null")
-	private AuthenticateResponse processLoginRequest(String loginId, String password, Double latitude, Double longitude) throws Throwable {
+	private AuthenticateResponse processLoginRequest(String loginId, String password, Double latitude, Double longitude)
+			throws Throwable {
 
 		if (loginId == null || password == null) {
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
@@ -172,14 +188,15 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 			PasswordSchema passwordSchema = passwordRepo.findByUserUUID(auth.getUserUUID());
 
-			/*Iterable<PasswordSchema> passwordSchemas = passwordRepo.findByIsActive(true);
-			for (PasswordSchema passwordSchema2 : passwordSchemas) {
-				if (auth.getUserUUID().equals(passwordSchema2.getUserUUID())) {
-					passwordSchema = passwordSchema2;
-				}
-			}*/
+			/*
+			 * Iterable<PasswordSchema> passwordSchemas = passwordRepo.findByIsActive(true);
+			 * for (PasswordSchema passwordSchema2 : passwordSchemas) { if
+			 * (auth.getUserUUID().equals(passwordSchema2.getUserUUID())) { passwordSchema =
+			 * passwordSchema2; } }
+			 */
 
-			if ((passwordSchema == null && passwordSchema.getPasswordHash() == null) || !passwordSchema.getPasswordHash().trim().equals(password.trim())) {
+			if ((passwordSchema == null && passwordSchema.getPasswordHash() == null)
+					|| !passwordSchema.getPasswordHash().trim().equals(password.trim())) {
 				throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 			} else {
 				AuthenticateResponse authResp = new AuthenticateResponse(auth, user, passwordSchema);

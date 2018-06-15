@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.desire3d.channel.NotificationChannel;
 import com.desire3d.channel.PasswordRecoveryChannel;
+import com.desire3d.channel.SessionHandlerChannel;
 import com.desire3d.channel.UserCreationChannel;
 
 @RefreshScope
@@ -24,7 +25,7 @@ import com.desire3d.channel.UserCreationChannel;
 @EnableEurekaClient
 @EnableAspectJAutoProxy
 @ComponentScan
-@EnableBinding({ UserCreationChannel.class, NotificationChannel.class, PasswordRecoveryChannel.class})
+@EnableBinding({ UserCreationChannel.class, NotificationChannel.class, PasswordRecoveryChannel.class,SessionHandlerChannel.class})
 public class Config {
 
 	@LoadBalanced
@@ -32,4 +33,6 @@ public class Config {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
+	
+	
 }

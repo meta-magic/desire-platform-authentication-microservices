@@ -50,7 +50,7 @@ public class ReactiveServiceImpl extends ReactiveFallback implements ReactiveSer
 		response.addCallback(new ListenableFutureCallback<ResponseEntity<ResponseBean>>() {
 			@Override
 			public void onSuccess(ResponseEntity<ResponseBean> response) {
-				System.out.println("*****ReactiveService::callService " + relativeUrl + " service call sucessful*****" + response.getBody());
+				System.out.println("*****ReactiveService::callService " + relativeUrl + " service call sucessful*****");
 				deferredResult.setResult(response);
 			}
 
