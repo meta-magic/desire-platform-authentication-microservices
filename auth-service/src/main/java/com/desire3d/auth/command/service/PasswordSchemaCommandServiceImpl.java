@@ -30,7 +30,6 @@ public class PasswordSchemaCommandServiceImpl implements PasswordSchemaCommandSe
 		current_passwordSchema.setPasswordHash(newPasswordHash);
 		current_passwordSchema.updateAuditFields(new AuditDetails(userId, new Date(System.currentTimeMillis())));
 		passwordSchemaCommandRepository.update(current_passwordSchema);
-		System.out.println("Current Date" + current_passwordSchema.getAuditDetails().getUpdatedTime());
 
 	}
 

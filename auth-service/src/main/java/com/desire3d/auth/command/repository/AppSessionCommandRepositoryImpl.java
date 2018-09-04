@@ -6,6 +6,8 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +22,8 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 
 	@Autowired
 	private PersistenceManagerFactory pmf;
+
+	private Logger LOGGER = LoggerFactory.getLogger(AppSessionCommandRepositoryImpl.class);
 
 	@Override
 	public AppSession update(AppSession appSession) throws PersistenceFailureException {
@@ -45,6 +49,8 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			LOGGER.error(new Date() + " [ " + "Appsession Data update failed for AppsessionId'{}'",
+					appSession.getAppSessionId() + "]");
 			throw new PersistenceFailureException(ExceptionID.ERROR_UPDATE, e);
 
 		} finally {
@@ -66,6 +72,7 @@ public class AppSessionCommandRepositoryImpl implements AppSessionCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			LOGGER.error(new Date() + " [ " + "App Session Data save failed" + "]");
 			throw new PersistenceFailureException(ExceptionID.ERROR_SAVE, e);
 		} finally {
 			pm.close();

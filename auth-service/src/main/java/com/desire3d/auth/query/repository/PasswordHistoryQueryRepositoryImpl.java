@@ -1,11 +1,14 @@
 package com.desire3d.auth.query.repository;
 
 import java.util.Collection;
+import java.util.Date;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +24,8 @@ public class PasswordHistoryQueryRepositoryImpl implements PasswordHistoryQueryR
 	@Autowired
 	private PersistenceManagerFactory pmf;
 
+	private Logger LOGGER = LoggerFactory.getLogger(PasswordHistoryQueryRepositoryImpl.class);
+
 	@Override
 	public Collection<PasswordHistory> findByUserUUID(String userUUID) throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
@@ -35,6 +40,8 @@ public class PasswordHistoryQueryRepositoryImpl implements PasswordHistoryQueryR
 
 		} catch (Throwable e) {
 			e.printStackTrace();
+			LOGGER.error(new Date() + " [ " + "Password History Data retrieve failed for userId '{}' ", userUUID + "]");
+
 			throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE, e);
 		} finally {
 			pm.close();

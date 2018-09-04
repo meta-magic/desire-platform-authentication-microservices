@@ -1,11 +1,14 @@
 package com.desire3d.auth.query.repository;
 
 import java.util.Collection;
+import java.util.Date;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,8 +23,11 @@ public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository 
 	@Autowired
 	private PersistenceManagerFactory pmf;
 
+	private Logger LOGGER = LoggerFactory.getLogger(AppSessionQueryRepositoryImpl.class);
+
 	@Override
-	public AppSession findAppSessionByAppSessionIdAndIsActive(String appSessionId, Boolean isActive) throws DataRetrievalFailureException {
+	public AppSession findAppSessionByAppSessionIdAndIsActive(String appSessionId, Boolean isActive)
+			throws DataRetrievalFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		AppSession appSession = null;
 		try {
@@ -40,6 +46,8 @@ public class AppSessionQueryRepositoryImpl implements AppSessionQueryRepository 
 				throw e;
 			} else {
 				e.printStackTrace();
+				LOGGER.error(new Date() + " [ " + "App Session Data retrieve failed for AppSessionId '{}' ",
+						appSessionId + "]");
 				throw new DataRetrievalFailureException(e.getMessage(), e);
 			}
 		} finally {

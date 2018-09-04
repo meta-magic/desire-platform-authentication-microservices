@@ -27,15 +27,13 @@ public class PasswordManagementController {
 	private PasswordManagementService passwordManagementService;
 
 	@RequestMapping(value = "/changePassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> changePassword(HttpServletRequest request, @RequestBody PasswordDTO passwordDTO) throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
+	public DeferredResult<ResponseEntity<ResponseBean>> changePassword(HttpServletRequest request,
+			@RequestBody PasswordDTO passwordDTO) throws Throwable {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
 		passwordManagementService.resetPassword(passwordDTO);
 
-		deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.PASSWORD_CHANGED, null), HttpStatus.OK));
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
+		deferredResult.setResult(new ResponseEntity<ResponseBean>(
+				new ResponseBean(true, ExceptionID.PASSWORD_CHANGED, null), HttpStatus.OK));
 
 		return deferredResult;
 	}

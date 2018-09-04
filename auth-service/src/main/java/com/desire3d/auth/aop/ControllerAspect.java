@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ import com.desire3d.auth.utils.CommonValidator;
 import com.desire3d.auth.utils.DataValidator;
 import com.desire3d.auth.utils.ExceptionID;
 
+import ch.qos.logback.classic.Logger;
+
 @Component
 @Aspect
 @Order(1)
@@ -33,18 +36,18 @@ public class ControllerAspect {
 	@Autowired
 	private MessageService messageService;
 
-	@Around("execution(* com.desire3d.*.controller..*.*(..))")
+	private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ControllerAspect.class);
+
+	@Around("allOperations() || insecureCalls()")
 	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-
 		String msg = joinPoint.getTarget().getClass() + " " + signature.getName();
-
-		System.out.println(new Date() + " Executing [ " + msg + "  ] starts");
+		LOGGER.info(new Date() + " Executing [ " + msg + "  ] starts");
 		Object response = joinPoint.proceed();
-		System.out.println(new Date() + " Execution [ " + msg + "  ] ends");
+		LOGGER.info(new Date() + " Executing [ " + msg + "  ] ends");
 		return response;
 	}
-	
+
 	@Around("allOperations() || insecureCalls()")
 	public Object processCall(ProceedingJoinPoint joinPoint) {
 		List<String> errors = validate(joinPoint);
@@ -73,18 +76,20 @@ public class ControllerAspect {
 				if (error instanceof BaseException) {
 					BaseException exception = (BaseException) error;
 					String message = messageService.getExceptionMessage(exception);
-					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message, getErrorMessages(exception));
+					ResponseBean responseBean = new ResponseBean(false, exception.getMessageId(), message,
+							getErrorMessages(exception));
 					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				} else {
 					String message = messageService.getMessageById(ExceptionID.ERROR_GLOBAL, error);
-					ResponseBean responseBean = new ResponseBean(false, ExceptionID.ERROR_GLOBAL, message, getErrorMessages(error));
+					ResponseBean responseBean = new ResponseBean(false, ExceptionID.ERROR_GLOBAL, message,
+							getErrorMessages(error));
 					deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 				}
 				return deferredResult;
 			}
 		}
 	}
-	
+
 	@Pointcut("execution(* com.desire3d.auth.controller..*.*(..))")
 	public void allOperations() {
 	}
@@ -95,6 +100,7 @@ public class ControllerAspect {
 
 	/**
 	 * METHOD FROM {@link BaseException}
+	 * 
 	 * @param exception
 	 * @return errorMessages
 	 */
@@ -104,6 +110,7 @@ public class ControllerAspect {
 
 	/**
 	 * METHOD FROM {@link Throwable}
+	 * 
 	 * @param throwable
 	 * @return errorMessages
 	 */

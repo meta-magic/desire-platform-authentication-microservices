@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -60,8 +62,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	@Autowired
 	private LoginDomainService loginDomainService;
 
-	// @Autowired
-	// private UserAuthenticationEventPublisher publisher;
+	private Logger LOGGER = LoggerFactory.getLogger(AuthQueryServiceImpl.class);
 
 	@Value("${session.expiry}")
 	private Integer sessionexpiry = null;
@@ -69,6 +70,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	@Override
 	public boolean validateLoginId(String loginId) throws Throwable {
 		if (loginId == null) {
+			LOGGER.error(new Date() + " [ " + "Invalid loginId:  '{}' ", loginId + "]");
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_LOGINID);
 		}
 		Collection<AuthSchema> auth = authSchemaQueryRepository.findByLoginId(loginId);
@@ -83,6 +85,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 	public LoginResponseDto authenticate(String loginId, String password, Double latitude, Double longitude,
 			HttpServletRequest request) throws Throwable {
 		if (loginId == null || password == null) {
+			LOGGER.error(new Date() + " [ " + "Invalid loginId:  '{}' ", loginId + "]");
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
@@ -111,6 +114,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			return loginResponse;
 		} catch (Throwable e) {
 			this.loginFailure(loginId, ((BaseException) e).getMessageId(), longitude, longitude, request);
+			LOGGER.error(new Date() + " [ " + "Invalid User Credentials. LoginId: '{}' ", loginId + "]");
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
@@ -175,6 +179,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 			throws Throwable {
 
 		if (loginId == null || password == null) {
+			LOGGER.error(new Date() + " [ " + "Invalid loginId or Password " + "]");
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 		}
 
@@ -183,6 +188,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 		if (auth != null && auth.getUserUUID() != null) {
 			UserSchema user = userSchemaQueryRepository.findById(auth.getUserUUID());
 			if (user.getAccountBlocked().equals(1) || user.isAccountExpired()) {
+				LOGGER.error(new Date() + " [ " + "Account is blocked or Expired. LoginId: '{}' ", loginId + "]");
 				throw new DataRetrievalFailureException(ExceptionID.INVALID_LOGINID_ACCOUNTBLOCKEDOREXPIRED);
 			}
 
@@ -197,6 +203,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 			if ((passwordSchema == null && passwordSchema.getPasswordHash() == null)
 					|| !passwordSchema.getPasswordHash().trim().equals(password.trim())) {
+				LOGGER.error(new Date() + " [ " + "Invalid User Credentials" + "]");
 				throw new DataRetrievalFailureException(ExceptionID.INVALID_USER_CREDENTIALS);
 			} else {
 				AuthenticateResponse authResp = new AuthenticateResponse(auth, user, passwordSchema);
@@ -208,6 +215,8 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 				return authResp;
 			}
 		} else {
+			LOGGER.error(new Date() + " [ " + "Invalid loginId. LoginId: '{}'" + "]");
+
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_LOGINID);
 		}
 

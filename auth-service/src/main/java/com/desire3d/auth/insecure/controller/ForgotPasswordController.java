@@ -30,28 +30,23 @@ public class ForgotPasswordController {
 	@RequestMapping(value = "/sendRecoveryToken", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public DeferredResult<ResponseEntity<ResponseBean>> validateForgotPassword(HttpServletRequest request,
 			@RequestBody UsernameAuthentication usernameAuthentication) throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
 		passwordManagementService.sendRecoveryToken(usernameAuthentication);
 
-		deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.RECOVERYTOKEN_SENT, null), HttpStatus.OK));
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
+		deferredResult.setResult(new ResponseEntity<ResponseBean>(
+				new ResponseBean(true, ExceptionID.RECOVERYTOKEN_SENT, null), HttpStatus.OK));
 
 		return deferredResult;
 	}
 
 	@RequestMapping(value = "/forgotPassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> validateToken(@RequestBody ForgotPasswordDTO forgotPasswordDTO) throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
+	public DeferredResult<ResponseEntity<ResponseBean>> validateToken(@RequestBody ForgotPasswordDTO forgotPasswordDTO)
+			throws Throwable {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
 		passwordManagementService.forgotPassword(forgotPasswordDTO);
 
-		deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.PASSWORD_CHANGED, null), HttpStatus.OK));
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
+		deferredResult.setResult(new ResponseEntity<ResponseBean>(
+				new ResponseBean(true, ExceptionID.PASSWORD_CHANGED, null), HttpStatus.OK));
 
 		return deferredResult;
 	}

@@ -28,7 +28,8 @@ public class UserLoginCreatedEventPublisher extends HelperDomainService {
 	private UserCreationChannel userCreationChannel;
 
 	public boolean publish(final UserLoginCreatedEvent event, final LoginInfoHelperBean loginInfoHelperBean) {
-		Message<UserLoginCreatedEvent> message = MessageBuilder.withPayload(event).setHeader(Constants.TOKEN_ID_KEY, prepareToken(loginInfoHelperBean)).build();
+		Message<UserLoginCreatedEvent> message = MessageBuilder.withPayload(event)
+				.setHeader(Constants.TOKEN_ID_KEY, prepareToken(loginInfoHelperBean)).build();
 		boolean status = userCreationChannel.userCreationOutputChannel().send(message);
 		logger.info("Published message '{}' with status '{}' ", message, status);
 		return status;

@@ -3,6 +3,9 @@
  */
 package com.desire3d.auth.service;
 
+import java.util.Date;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -19,6 +22,8 @@ import com.desire3d.auth.component.LoadBalancer;
 import com.desire3d.auth.fallback.ReactiveFallback;
 import com.desire3d.auth.fw.service.ReactiveService;
 
+import ch.qos.logback.classic.Logger;
+
 /**
  * @author Mahesh Pardeshi
  *
@@ -26,50 +31,61 @@ import com.desire3d.auth.fw.service.ReactiveService;
 @Service
 public class ReactiveServiceImpl extends ReactiveFallback implements ReactiveService {
 
+	private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ReactiveServiceImpl.class);
+
 	@Autowired
 	private AsyncRestTemplate asyncRestTemplate;
 
 	@Autowired
 	private LoadBalancer loadBalancer;
 
-	/** 
-	 * Method is used to call service reactively, method will auto configure host and post of service  
+	/**
+	 * Method is used to call service reactively, method will auto configure host
+	 * and post of service
 	 * 
-	 * @param relativeUrl - Relative URL e.g /auth/validateloginid
-	 * @param method - HttpMethod
-	 * @param requestEntity - payload for request 
-	 * */
+	 * @param relativeUrl
+	 *            - Relative URL e.g /auth/validateloginid
+	 * @param method
+	 *            - HttpMethod
+	 * @param requestEntity
+	 *            - payload for request
+	 */
 	@Override
-	public DeferredResult<ResponseEntity<ResponseBean>> callService(String relativeUrl, HttpMethod method, HttpEntity<?> requestEntity) {
-		System.out.println("*****ReactiveService::callService " + relativeUrl + " call begins *****");
+	public DeferredResult<ResponseEntity<ResponseBean>> callService(String relativeUrl, HttpMethod method,
+			HttpEntity<?> requestEntity) {
+		LOGGER.info(new Date() + " Executing [ " + relativeUrl + "  ] starts");
 
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		ListenableFuture<ResponseEntity<ResponseBean>> response = asyncRestTemplate.exchange(loadBalancer.getServiceURL() + relativeUrl, method, requestEntity,
-				ResponseBean.class);
+		ListenableFuture<ResponseEntity<ResponseBean>> response = asyncRestTemplate
+				.exchange(loadBalancer.getServiceURL() + relativeUrl, method, requestEntity, ResponseBean.class);
 
 		response.addCallback(new ListenableFutureCallback<ResponseEntity<ResponseBean>>() {
 			@Override
 			public void onSuccess(ResponseEntity<ResponseBean> response) {
-				System.out.println("*****ReactiveService::callService " + relativeUrl + " service call sucessful*****");
+				LOGGER.info(new Date() + " Executing [ " + relativeUrl + "  ] service call sucessful");
 				deferredResult.setResult(response);
 			}
 
 			@Override
 			public void onFailure(Throwable throwable) {
 				throwable.printStackTrace();
-				ResponseBean response = new ResponseBean(false, throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.toString());
+				ResponseBean response = new ResponseBean(false, throwable.getMessage(),
+						HttpStatus.INTERNAL_SERVER_ERROR.toString());
 				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(response, HttpStatus.OK));
 			}
 		});
-		System.out.println("*****ReactiveService::callService " + relativeUrl + " call end *****");
+		LOGGER.info(new Date() + " Executing [ " + relativeUrl + "  ] call end");
 		return deferredResult;
 	}
 
-	/** 
+	/**
 	 * Method used to fallback reactive service with message and id
-	 * @param message - fallback message
-	 * @param messageId - fallback message id
-	 * */
+	 * 
+	 * @param message
+	 *            - fallback message
+	 * @param messageId
+	 *            - fallback message id
+	 */
 	@Override
 	public DeferredResult<ResponseEntity<ResponseBean>> fallback(final String message, final String messageId) {
 		return super.reactiveFallback(message, messageId);

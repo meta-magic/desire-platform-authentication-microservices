@@ -7,6 +7,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +16,26 @@ import org.springframework.stereotype.Component;
 import com.desire3d.auth.beans.ResponseBean;
 import com.desire3d.auth.fw.service.MessageService;
 
+import ch.qos.logback.classic.Logger;
+
 @Component
 @Aspect
 public class ControllerAspect {
 
 	@Autowired
 	private MessageService messageService;
+	
+	private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ControllerAspect.class);
 
-	@Around("execution(* com.desire3d.persona.controller..*.*(..))")
+	@Around("execution(* com.desire3d.auth.controller..*.*(..))")
 	public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
 		String msg = joinPoint.getTarget().getClass() + " " + signature.getName();
 
-		System.out.println(new Date() + " Executing [ " + msg + "  ] starts");
+		LOGGER.info(new Date() + " Executing [ " + msg + "  ] starts");
 		Object retVal = joinPoint.proceed();
-		System.out.println(new Date() + " Execution [ " + msg + "  ] ends");
+		LOGGER.info(new Date() + " Executing [ " + msg + "  ] starts");
 		return retVal;
 	}
 

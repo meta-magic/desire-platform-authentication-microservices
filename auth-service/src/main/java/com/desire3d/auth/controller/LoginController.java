@@ -31,13 +31,12 @@ public class LoginController {
 	private LoginQueryService loginService;
 
 	@RequestMapping(value = "/logout", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request, @RequestBody LogoutAuthentication logoutAuthentication)
-			throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
+	public DeferredResult<ResponseEntity<ResponseBean>> logout(HttpServletRequest request,
+			@RequestBody LogoutAuthentication logoutAuthentication) throws Throwable {
 
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		Single<Boolean> single = Single.just(loginService.userLogout(logoutAuthentication.getLatitude(), logoutAuthentication.getLongitude(), request));
+		Single<Boolean> single = Single.just(loginService.userLogout(logoutAuthentication.getLatitude(),
+				logoutAuthentication.getLongitude(), request));
 		single.subscribe(isLogout -> {
 			if (isLogout) {
 				ResponseBean responseBean = new ResponseBean(true, ExceptionID.USER_LOGOUT, isLogout);
@@ -47,12 +46,10 @@ public class LoginController {
 				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 			}
 		}, exception -> {
-			ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGOUT_FAILED, exception.getMessage(), Arrays.asList(exception.getMessage()));
+			ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGOUT_FAILED, exception.getMessage(),
+					Arrays.asList(exception.getMessage()));
 			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 		});
-
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
 
 		return deferredResult;
 	}

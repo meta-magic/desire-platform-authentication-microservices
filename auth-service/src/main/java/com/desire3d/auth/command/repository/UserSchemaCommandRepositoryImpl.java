@@ -1,9 +1,13 @@
 package com.desire3d.auth.command.repository;
 
+import java.util.Date;
+
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,8 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 	@Autowired
 	private PersistenceManagerFactory pmf;
 
+	private Logger LOGGER = LoggerFactory.getLogger(UserSchemaCommandRepositoryImpl.class);
+
 	@Override
 	public UserSchema save(UserSchema userSchema) throws PersistenceFailureException {
 		PersistenceManager pm = pmf.getPersistenceManager();
@@ -37,6 +43,8 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			LOGGER.error(new Date() + " [ " + "User Schema save failed. " + "]");
+
 			throw new PersistenceFailureException(ExceptionID.ERROR_SAVE, e);
 		} finally {
 			pm.close();
@@ -57,6 +65,8 @@ public class UserSchemaCommandRepositoryImpl implements UserSchemaCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			LOGGER.error(new Date() + " [ " + "User Schema update failed for UserId '{}' ",
+					userSchema.getUserUUID() + "]");
 			throw new PersistenceFailureException(ExceptionID.ERROR_UPDATE, e);
 		} finally {
 			pm.close();

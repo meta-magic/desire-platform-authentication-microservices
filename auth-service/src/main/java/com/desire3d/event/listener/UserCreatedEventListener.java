@@ -36,7 +36,7 @@ public class UserCreatedEventListener extends HelperDomainService {
 			logger.info("Login Created Successfully for event '{}'", event);
 		} catch (Throwable e) {
 			e.printStackTrace();
-			logger.info("Login Creation Failed for event '{}'", event);
+			logger.error("Login Creation Failed for event '{}'", event);
 		}
 	}
 }

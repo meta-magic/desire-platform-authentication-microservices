@@ -1,9 +1,13 @@
 package com.desire3d.auth.command.repository;
 
+import java.util.Date;
+
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +25,9 @@ public class AuthSchemaCommandRepositoryImpl implements AuthSchemaCommandReposit
 
 	@Autowired
 	private PersistenceManagerFactory pmf;
+	
+	private Logger LOGGER = LoggerFactory.getLogger(AuthSchemaCommandRepositoryImpl.class);
+
 
 	@Override
 	public AuthSchema save(AuthSchema authSchema) throws PersistenceFailureException {
@@ -35,6 +42,7 @@ public class AuthSchemaCommandRepositoryImpl implements AuthSchemaCommandReposit
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			LOGGER.error(new Date() + " [ " + "Auth Schema Data save failed. " + "]");
 			throw new PersistenceFailureException(ExceptionID.ERROR_SAVE, e);
 		} finally {
 			pm.close();

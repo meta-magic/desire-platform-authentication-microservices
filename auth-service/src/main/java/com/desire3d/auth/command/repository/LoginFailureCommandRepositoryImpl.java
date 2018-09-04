@@ -1,9 +1,13 @@
 package com.desire3d.auth.command.repository;
 
+import java.util.Date;
+
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +21,9 @@ public class LoginFailureCommandRepositoryImpl implements LoginFailureCommandRep
 
 	@Autowired
 	private PersistenceManagerFactory pmf;
+	
+	private Logger LOGGER = LoggerFactory.getLogger(LoginFailureCommandRepositoryImpl.class);
+
 
 	@Override
 	public LoginFailure save(LoginFailure loginFailure) throws PersistenceFailureException {
@@ -31,6 +38,7 @@ public class LoginFailureCommandRepositoryImpl implements LoginFailureCommandRep
 			if (tx.isActive()) {
 				tx.rollback();
 			}
+			LOGGER.error(new Date() + " [ " + "Login Failure Data save failed. " + "]");
 			throw new PersistenceFailureException(ExceptionID.ERROR_SAVE, e);
 		} finally {
 			pm.close();

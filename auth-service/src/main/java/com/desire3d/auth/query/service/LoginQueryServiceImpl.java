@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -35,27 +37,31 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 
 	@Autowired
 	private LoginInfoHelperBean loginInfoHelperBean;
-	
-//	@Autowired
-//	private UserAuthenticationEventPublisher publisher;
-	
+
+	// @Autowired
+	// private UserAuthenticationEventPublisher publisher;
+
+	private Logger LOGGER = LoggerFactory.getLogger(LoginQueryServiceImpl.class);
+
 	@Override
 	public boolean userLogout(Double latitude, Double longitude, HttpServletRequest request) throws Throwable {
 
 		String appSessionId = loginInfoHelperBean.getAppSessionId();
 		String userId = loginInfoHelperBean.getUserId();
 		if (appSessionId == null && userId == null) {
+			LOGGER.error(new Date() + " [ " + "Invalid User Sessions for userId: '{}'", userId + "]");
 			throw new DataRetrievalFailureException(ExceptionID.INVALID_USERSESSION);
 		} else {
 			// UPDATE APPSSESSION ACTIVE STATUS
 			AppSession appSession = appSessionQRepo.findAppSessionByAppSessionIdAndIsActive(appSessionId, true);
 			appSession.setIsActive(false);
-			appSession.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
+			appSession.setAuditDetails(
+					new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
 			appSessionRepo.update(appSession);
-			
+
 			/** REQUEST TO STOP USER INSTANCE */
 			// publisher.publish(new UserLoggedoutEvent(loginInfoHelperBean.getPersonId()));
-			
+
 			// ADD REAL DATA FROM REQUEST
 			int loginformfactor = 0;
 			if (request.getHeader("User-Agent").indexOf("Mobile") != -1) {
@@ -63,10 +69,13 @@ public class LoginQueryServiceImpl implements LoginQueryService {
 			} else {
 				loginformfactor = Constants.DESKTOP_AGENT;
 			}
-			LoginHistory loginHistory = new LoginHistory(loginInfoHelperBean.getMteid(), loginInfoHelperBean.getUserId(), loginInfoHelperBean.getAppSessionId(),
-					2, loginformfactor, request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"), latitude, longitude);
-			loginHistory.setAuditDetails(new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis()),
-					loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
+			LoginHistory loginHistory = new LoginHistory(loginInfoHelperBean.getMteid(),
+					loginInfoHelperBean.getUserId(), loginInfoHelperBean.getAppSessionId(), 2, loginformfactor,
+					request.getHeader("host"), request.getHeader("User-Agent"), request.getHeader("User-Agent"),
+					latitude, longitude);
+			loginHistory.setAuditDetails(
+					new AuditDetails(loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis()),
+							loginInfoHelperBean.getUserId(), new Date(System.currentTimeMillis())));
 			loginHistoryRepo.save(loginHistory);
 			return true;
 		}

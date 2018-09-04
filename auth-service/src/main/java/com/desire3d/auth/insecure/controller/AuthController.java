@@ -31,36 +31,34 @@ public class AuthController {
 	private AuthQueryService authService;
 
 	@RequestMapping(value = "/validateloginid", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> validateLoginId(HttpServletRequest request, @RequestBody UsernameAuthentication usernameAuthentication)
-			throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started %%%%%%%%%%%%%%*****");
+	public DeferredResult<ResponseEntity<ResponseBean>> validateLoginId(HttpServletRequest request,
+			@RequestBody UsernameAuthentication usernameAuthentication) throws Throwable {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
 		Single<Boolean> single = Single.just(authService.validateLoginId(usernameAuthentication.getLoginId()));
 		single.subscribe(isValidLogin -> {
 			if (isValidLogin) {
-				deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.VALID_LOGINID, isValidLogin), HttpStatus.OK));
+				deferredResult.setResult(new ResponseEntity<ResponseBean>(
+						new ResponseBean(true, ExceptionID.VALID_LOGINID, isValidLogin), HttpStatus.OK));
 			} else {
-				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(new ResponseBean(false, ExceptionID.INVALID_LOGINID), HttpStatus.OK));
+				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(
+						new ResponseBean(false, ExceptionID.INVALID_LOGINID), HttpStatus.OK));
 			}
 		}, exception -> {
-			ResponseBean responseBean = new ResponseBean(false, ExceptionID.INVALID_LOGINID, exception.getMessage(), Arrays.asList(exception.getMessage()));
+			ResponseBean responseBean = new ResponseBean(false, ExceptionID.INVALID_LOGINID, exception.getMessage(),
+					Arrays.asList(exception.getMessage()));
 			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 		});
 
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
 		return deferredResult;
 	}
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> authenticate(HttpServletRequest request, @RequestBody LoginAuthentication loginAuthentication)
-			throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started*****");
+	public DeferredResult<ResponseEntity<ResponseBean>> authenticate(HttpServletRequest request,
+			@RequestBody LoginAuthentication loginAuthentication) throws Throwable {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
-		Single<LoginResponseDto> single = Single.just(authService.authenticate(loginAuthentication.getLoginId(), loginAuthentication.getPassword(),
-				loginAuthentication.getLatitude(), loginAuthentication.getLongitude(), request));
+		Single<LoginResponseDto> single = Single
+				.just(authService.authenticate(loginAuthentication.getLoginId(), loginAuthentication.getPassword(),
+						loginAuthentication.getLatitude(), loginAuthentication.getLongitude(), request));
 		single.subscribe(loginResponse -> {
 			if (loginResponse != null) {
 				ResponseBean responseBean = new ResponseBean(true, ExceptionID.VALID_USERCREDENTIALS, loginResponse);
@@ -70,21 +68,17 @@ public class AuthController {
 				deferredResult.setErrorResult(new ResponseEntity<>(responseBean, HttpStatus.OK));
 			}
 		}, exception -> {
-			ResponseBean responseBean = new ResponseBean(false, ExceptionID.INVALID_USER_CREDENTIALS, exception.getMessage(),
-					Arrays.asList(exception.getMessage()));
+			ResponseBean responseBean = new ResponseBean(false, ExceptionID.INVALID_USER_CREDENTIALS,
+					exception.getMessage(), Arrays.asList(exception.getMessage()));
 			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 		});
-
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
 
 		return deferredResult;
 	}
 
 	@RequestMapping(value = "/checkLoginIdAvailablility", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DeferredResult<ResponseEntity<ResponseBean>> checkLoginIdAvailablility(@RequestBody UsernameAuthentication usernameAuthentication) throws Throwable {
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " started %%%%%%%%%%%%%%*****");
+	public DeferredResult<ResponseEntity<ResponseBean>> checkLoginIdAvailablility(
+			@RequestBody UsernameAuthentication usernameAuthentication) throws Throwable {
 		DeferredResult<ResponseEntity<ResponseBean>> deferredResult = new DeferredResult<>();
 		Single<Boolean> single = Single.just(authService.validateLoginId(usernameAuthentication.getLoginId()));
 		single.subscribe(isValidLogin -> {
@@ -93,15 +87,15 @@ public class AuthController {
 				deferredResult.setErrorResult(new ResponseEntity<>(responseBean, HttpStatus.OK));
 
 			} else {
-				deferredResult.setResult(new ResponseEntity<ResponseBean>(new ResponseBean(true, ExceptionID.LOGINID_AVAILABLE, isValidLogin), HttpStatus.OK));
+				deferredResult.setResult(new ResponseEntity<ResponseBean>(
+						new ResponseBean(true, ExceptionID.LOGINID_AVAILABLE, isValidLogin), HttpStatus.OK));
 			}
 		}, exception -> {
-			ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGINID_EXISTS, exception.getMessage(), Arrays.asList(exception.getMessage()));
+			ResponseBean responseBean = new ResponseBean(false, ExceptionID.LOGINID_EXISTS, exception.getMessage(),
+					Arrays.asList(exception.getMessage()));
 			deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(responseBean, HttpStatus.OK));
 		});
 
-		System.out.println("*****Reactive call " + Thread.currentThread().getStackTrace()[1].getClassName() + "::"
-				+ Thread.currentThread().getStackTrace()[1].getMethodName() + " completed*****");
 		return deferredResult;
 	}
 }

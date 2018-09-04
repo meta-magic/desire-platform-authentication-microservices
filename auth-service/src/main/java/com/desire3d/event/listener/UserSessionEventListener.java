@@ -2,6 +2,8 @@ package com.desire3d.event.listener;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -44,6 +46,8 @@ public class UserSessionEventListener {
 
 	@Autowired
 	private LoginHistoryCommandRepository loginHistoryRepo;
+	
+	private final Logger logger = LoggerFactory.getLogger(UserSessionEventListener.class);
 
 	@StreamListener(SessionHandlerChannel.SESSION_HANDLER_INPUT_CHANNEL)
 	public void onReceive(@Payload UserSessionEvent sessionEvent, @Header(name = "tokenId") String token)
@@ -55,24 +59,25 @@ public class UserSessionEventListener {
 			// SESSION UPDATED
 			AppSession appSession = appSessionQRepo.findAppSessionByAppSessionIdAndIsActive(
 					tokenJSON.getString(TokenService.APP_SESSION_ID_KEY), true);
-			if(appSession!=null) {
+			if (appSession != null) {
 				appSession.setIsActive(false);
 				appSession.setAuditDetails(new AuditDetails(tokenJSON.getString(TokenService.USER_ID_KEY),
 						new Date(System.currentTimeMillis())));
 				appSessionRepo.update(appSession);
-				
-				
+
 				// ADD NEW ENTERY IN LOGIN HISTRY TABLE
 				LoginHistory loginHistory = new LoginHistory(tokenJSON.getString(TokenService.MTE_ID_KEY),
-						tokenJSON.getString(TokenService.USER_ID_KEY), tokenJSON.getString(TokenService.APP_SESSION_ID_KEY),
-						2, Constants.OTHER_AGENT, "NONE", "NONE", "NONE", 1.0, 1.0);
+						tokenJSON.getString(TokenService.USER_ID_KEY),
+						tokenJSON.getString(TokenService.APP_SESSION_ID_KEY), 2, Constants.OTHER_AGENT, "NONE", "NONE",
+						"NONE", 1.0, 1.0);
 				loginHistory.setAuditDetails(new AuditDetails(tokenJSON.getString(TokenService.USER_ID_KEY),
 						new Date(System.currentTimeMillis()), tokenJSON.getString(TokenService.USER_ID_KEY),
 						new Date(System.currentTimeMillis())));
 				loginHistoryRepo.save(loginHistory);
-				System.out.println("USER LOGGED OUT BY EVENT.");
-			}else {
-				System.out.println("USER ALREADY LOGGED OUT.");
+				logger.info("User Logged from user session event ");
+
+			} else {
+				logger.info("User already logged out ");
 			}
 
 		}
