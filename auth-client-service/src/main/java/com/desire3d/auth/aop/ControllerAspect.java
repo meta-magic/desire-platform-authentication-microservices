@@ -35,7 +35,7 @@ public class ControllerAspect {
 
 		LOGGER.info(new Date() + " Executing [ " + msg + "  ] starts");
 		Object retVal = joinPoint.proceed();
-		LOGGER.info(new Date() + " Executing [ " + msg + "  ] starts");
+		LOGGER.info(new Date() + " Executing [ " + msg + "  ] ends");
 		return retVal;
 	}
 
