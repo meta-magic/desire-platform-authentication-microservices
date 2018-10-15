@@ -65,8 +65,9 @@ public class RecoveryTokenQueryRepositoryImpl implements RecoveryTokenQueryRepos
 
 			Collection<RecoveryToken> recoveryTokens = (Collection<RecoveryToken>) query.execute(token);
 			if (recoveryTokens.isEmpty()) {
-				LOGGER.error(new Date() + " [ " + "Recovery Token retrieve failed for token '{}' ", token + "]");
-				throw new DataRetrievalFailureException(ExceptionID.ERROR_RETRIEVE);
+				return null;
+
+//				LOGGER.error(new Date() + " [ " + "Recovery Token retrieve failed for token '{}' ", token + "]");
 			} else {
 				recoveryToken = pm.detachCopy(recoveryTokens.iterator().next());
 			}
