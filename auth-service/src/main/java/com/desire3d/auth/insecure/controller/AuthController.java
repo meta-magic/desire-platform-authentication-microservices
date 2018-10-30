@@ -41,7 +41,7 @@ public class AuthController {
 						new ResponseBean(true, ExceptionID.VALID_LOGINID, isValidLogin), HttpStatus.OK));
 			} else {
 				deferredResult.setErrorResult(new ResponseEntity<ResponseBean>(
-						new ResponseBean(false, ExceptionID.INVALID_LOGINID), HttpStatus.OK));
+						new ResponseBean(false, ExceptionID.INVALID_LOGINID,false), HttpStatus.OK));
 			}
 		}, exception -> {
 			ResponseBean responseBean = new ResponseBean(false, ExceptionID.INVALID_LOGINID, exception.getMessage(),
