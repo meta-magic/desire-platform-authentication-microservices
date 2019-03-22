@@ -11,12 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JDOConfiguration {
 
-	// @Bean
-	// public PersistenceManagerFactory pmf() {
-	// PersistenceManagerFactory PERSISTENCE_MANAGER_FACTORY =
-	// JDOHelper.getPersistenceManagerFactory("PersistenceUnit");
-	// return PERSISTENCE_MANAGER_FACTORY;
-	// }
 	@Bean
 	public PersistenceManagerFactory getPersistenceManagerFactory() {
 		String user = System.getenv("AUTH_MS_DB_USER");

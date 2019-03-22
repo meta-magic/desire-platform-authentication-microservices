@@ -11,12 +11,9 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 public class AuthServiceApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		// SpringApplication.run(AuthServiceApplication.class);
 		SpringApplication sa = new SpringApplication(AuthServiceApplication.class);
-
 		sa.setDefaultProperties(getProperties());
 		sa.run(args);
-
 	}
 
 	@Override
@@ -32,7 +29,6 @@ public class AuthServiceApplication extends SpringBootServletInitializer {
 		String brokers = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_BROKERS");
 		String defaultBrokerPort = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_DEFAULTBROKERPORT");
 		Properties props = new Properties();
-		// Map<String, Object> props = new HashMap<>();
 		props.put("spring.cloud.stream.kafka.binder.headers", headers);
 		props.put("spring.cloud.stream.kafka.binder.brokers", brokers);
 		props.put("spring.cloud.stream.kafka.binder.defaultBrokerPort", defaultBrokerPort);

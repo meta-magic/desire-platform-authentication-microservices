@@ -21,7 +21,6 @@ import com.desire3d.channel.UserCreationChannel;
 
 @RefreshScope
 @Configuration
-//@EnableEurekaClient
 @EnableAspectJAutoProxy
 @ComponentScan
 @EnableBinding({ UserCreationChannel.class, NotificationChannel.class, PasswordRecoveryChannel.class,SessionHandlerChannel.class})
