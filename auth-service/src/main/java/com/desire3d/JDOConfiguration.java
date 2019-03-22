@@ -13,19 +13,17 @@ public class JDOConfiguration {
 
 	@Bean
 	public PersistenceManagerFactory getPersistenceManagerFactory() {
-		String user = System.getenv("AUTH_MS_DB_USER");
-		String password = System.getenv("AUTH_MS_DB_PASSWORD");
-		String connectionurl = System.getenv("AUTH_DB_CONNECTION_URL");
+		DBConfiguration dbConfiguration = new DBConfiguration();
+		System.out.println(
+				"\n ConnectionURL: " + dbConfiguration.getConnectionurl() + "\n User :" + dbConfiguration.getUser());
 		Properties prop = new Properties();
-		prop.setProperty("javax.jdo.option.ConnectionURL", connectionurl);
+		prop.setProperty("javax.jdo.option.ConnectionURL", dbConfiguration.getConnectionurl());
 		prop.setProperty("javax.jdo.option.ConnectionDriverName", "org.postgresql.Driver");
-		prop.setProperty("javax.jdo.option.ConnectionUserName", user);
+		prop.setProperty("javax.jdo.option.ConnectionUserName", dbConfiguration.getUser());
 		prop.setProperty("javax.jdo.option.DetachAllOnCommit", "true");
 		prop.setProperty("javax.jdo.option.Mapping", "postgres");
-		prop.setProperty("javax.jdo.option.ConnectionPassword", password);
-		prop.setProperty("datanucleus.schema.autoCreateAll", "true");
-		prop.setProperty("datanucleus.schema.validateConstraints", "false");
-		prop.setProperty("datanucleus.schema.validateTables", "false");
+		prop.setProperty("javax.jdo.option.ConnectionPassword", dbConfiguration.getPassword());
+		prop.setProperty("datanucleus.schema.autoCreateAll", "false");
 		PersistenceManagerFactory pmf = JDOHelper.getPersistenceManagerFactory(prop);
 		return pmf;
 	}

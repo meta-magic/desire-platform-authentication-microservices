@@ -23,17 +23,16 @@ public class AuthServiceApplication extends SpringBootServletInitializer {
 	}
 
 	public static Properties getProperties() {
-		String zkNodes = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_ZKNODES");
-		String defaultZkPort = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_DEFAULTZKPORT");
-		String headers = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_HEADERS");
-		String brokers = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_BROKERS");
-		String defaultBrokerPort = System.getenv("SPRING_CLOUD_STREAM_KAFKA__BINDER_DEFAULTBROKERPORT");
+		KafkaConfiguration kafkaConfiguration = new KafkaConfiguration();
 		Properties props = new Properties();
-		props.put("spring.cloud.stream.kafka.binder.headers", headers);
-		props.put("spring.cloud.stream.kafka.binder.brokers", brokers);
-		props.put("spring.cloud.stream.kafka.binder.defaultBrokerPort", defaultBrokerPort);
-		props.put("spring.cloud.stream.kafka.binder.zkNodes", zkNodes);
-		props.put("spring.cloud.stream.kafka.binder.defaultZkPort", defaultZkPort);
+		System.out.println("\n zkNodes: " + kafkaConfiguration.getZkNodes() + "\n defaultZkPort:"
+				+ kafkaConfiguration.getDefaultZkPort() + "\n brokers:" + kafkaConfiguration.getBrokers()
+				+ "\n defaultBrokerPort:" + kafkaConfiguration.getDefaultBrokerPort());
+		props.put("spring.cloud.stream.kafka.binder.headers", "tokenId");
+		props.put("spring.cloud.stream.kafka.binder.brokers", kafkaConfiguration.getBrokers());
+		props.put("spring.cloud.stream.kafka.binder.defaultBrokerPort", kafkaConfiguration.getDefaultBrokerPort());
+		props.put("spring.cloud.stream.kafka.binder.zkNodes", kafkaConfiguration.getZkNodes());
+		props.put("spring.cloud.stream.kafka.binder.defaultZkPort", kafkaConfiguration.getDefaultZkPort());
 		return props;
 	}
 

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 //import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.web.client.RestTemplate;
 
+import com.desire3d.auth.dto.VersionInfo;
 import com.desire3d.channel.NotificationChannel;
 import com.desire3d.channel.PasswordRecoveryChannel;
 import com.desire3d.channel.SessionHandlerChannel;
@@ -23,7 +24,8 @@ import com.desire3d.channel.UserCreationChannel;
 @Configuration
 @EnableAspectJAutoProxy
 @ComponentScan
-@EnableBinding({ UserCreationChannel.class, NotificationChannel.class, PasswordRecoveryChannel.class,SessionHandlerChannel.class})
+@EnableBinding({ UserCreationChannel.class, NotificationChannel.class, PasswordRecoveryChannel.class,
+		SessionHandlerChannel.class })
 public class Config {
 
 	@LoadBalanced
@@ -31,6 +33,15 @@ public class Config {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
-	
-	
+
+	@Bean
+	public VersionInfo getVersion() {
+		String version = System.getenv("SERVICE_VERSION");
+		System.out.println("*****version******" + version);
+		if (version == null) {
+			version = "v1";
+		}
+		return new VersionInfo(version);
+	}
+
 }
