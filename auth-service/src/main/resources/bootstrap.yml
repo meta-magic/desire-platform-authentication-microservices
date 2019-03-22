@@ -1,8 +1,26 @@
+server:
+  port: 8089
 spring:
-  profiles:
-    active: dev_env
   application:
     name: authservice
+  sleuth:
+    enabled: true
   cloud:
-    config:
-      uri: http://localhost:8081
+    stream:
+      bindings:
+        userCreationInputChannel:
+          destination: usercreation
+          contentType: application/x-java-object
+          group: auth_usercreation_cg
+        userCreationOutputChannel:
+          destination: logincreation
+          contentType: application/json
+        emailNotificationOutputChannel:
+          destination: emailnotification
+          contentType: application/json
+        passwordRecoveryOutputChannel:
+          destination: passwordrecovery
+          contentType: application/json
+        sessionHandlerInputChannel:
+          destination: sessionhandler
+          contentType: application/json

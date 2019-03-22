@@ -64,8 +64,8 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 	private Logger LOGGER = LoggerFactory.getLogger(AuthQueryServiceImpl.class);
 
-	@Value("${session.expiry}")
-	private Integer sessionexpiry = null;
+//	@Value("${session.expiry}")
+	private Integer sessionexpiry = Integer.valueOf(System.getenv("SESSION_EXPIRY"));;
 
 	@Override
 	public boolean validateLoginId(String loginId) throws Throwable {
