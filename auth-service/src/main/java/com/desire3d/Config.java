@@ -36,7 +36,7 @@ public class Config {
 
 	@Bean
 	public VersionInfo getVersion() {
-		String version = System.getenv("SERVICE_VERSION");
+		String version = System.getenv("AUTH_VERSION");
 		System.out.println("*****version******" + version);
 		if (version == null) {
 			version = "v1";
