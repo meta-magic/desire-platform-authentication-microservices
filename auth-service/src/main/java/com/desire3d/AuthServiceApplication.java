@@ -22,7 +22,6 @@ public class AuthServiceApplication extends SpringBootServletInitializer {
 		System.out.println("\n ConnectionURL :" + SystemEnviroment.getConnectionurl() + "\n User :"
 				+ SystemEnviroment.getUser() + "\n Tokenkey :" + SystemEnviroment.getTokenKey() + "\n TokenValidity :"
 				+ SystemEnviroment.getTokenValidity() + "\n Sessionexpiry :" + SystemEnviroment.getSessionexpiry());
-
 		return application.sources(AuthServiceApplication.class);
 	}
 
