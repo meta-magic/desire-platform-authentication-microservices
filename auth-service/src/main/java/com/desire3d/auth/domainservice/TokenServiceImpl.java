@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.desire3d.SystemEnviroment;
 import com.desire3d.auth.fw.domainservice.TokenService;
 
 import atg.taglib.json.util.JSONException;
@@ -18,14 +19,13 @@ import io.jsonwebtoken.UnsupportedJwtException;
 @Component
 public class TokenServiceImpl implements TokenService {
 
-//	@Value("${token.key}")
-	private String tokenKey = System.getenv("TOKEN_KEY");
+	private String tokenKey = SystemEnviroment.getTokenKey();
 
-//	@Value("${token.validity}")
-	private Long tokenValidity = Long.valueOf(System.getenv("TOKEN_VALIDITY"));
-	
+	private Long tokenValidity = SystemEnviroment.getTokenValidity();
+
 	@Override
-	public String generateToken(String mteid, String loginId, String userId, String personId, String appSessionId, Integer subscriptionType) {
+	public String generateToken(String mteid, String loginId, String userId, String personId, String appSessionId,
+			Integer subscriptionType) {
 		JSONObject json = new JSONObject();
 		try {
 			json.put(MTE_ID_KEY, mteid);
@@ -41,25 +41,29 @@ public class TokenServiceImpl implements TokenService {
 	}
 
 	@Override
-	public JSONObject getTokenData(String tokenId)
-			throws JSONException, ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+	public JSONObject getTokenData(String tokenId) throws JSONException, ExpiredJwtException, UnsupportedJwtException,
+			MalformedJwtException, SignatureException, IllegalArgumentException {
 		String tokenData = Jwts.parser().setSigningKey(tokenKey).parseClaimsJws(tokenId).getBody().getSubject();
 		return new JSONObject(tokenData);
 	}
 
 	private String generateTokenFromJson(JSONObject tokenJson, Long tokenExpiry) {
-		return Jwts.builder().setSubject(tokenJson.toString()).setExpiration(new Date(System.currentTimeMillis() + tokenExpiry))
+		return Jwts.builder().setSubject(tokenJson.toString())
+				.setExpiration(new Date(System.currentTimeMillis() + tokenExpiry))
 				.signWith(SignatureAlgorithm.HS512, tokenKey).compact();
 	}
 
-	/** 
-	 * method to create JWT token using json object as a payload and expiry in miliseconds 
+	/**
+	 * method to create JWT token using json object as a payload and expiry in
+	 * miliseconds
 	 * 
-	 * @param tokenJson a payload for JWT token
-	 * @param tokenExpiry token expiry in milliseconds 
+	 * @param tokenJson
+	 *            a payload for JWT token
+	 * @param tokenExpiry
+	 *            token expiry in milliseconds
 	 * 
 	 * @return JWT token
-	 * */
+	 */
 	@Override
 	public String generateToken(JSONObject tokenJson, Long tokenExpiry) {
 		return generateTokenFromJson(tokenJson, tokenExpiry);
