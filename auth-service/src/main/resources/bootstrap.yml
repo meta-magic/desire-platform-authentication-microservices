@@ -8,8 +8,7 @@ spring:
       bindings:
         userCreationInputChannel:
           destination: usercreation
-          contentType: application/x-java-object
-          group: auth_usercreation_cg
+          contentType: application/json
         userCreationOutputChannel:
           destination: logincreation
           contentType: application/json
@@ -22,3 +21,10 @@ spring:
         sessionHandlerInputChannel:
           destination: sessionhandler
           contentType: application/json
+      kafka:
+        binder:
+          headers: tokenId
+          zkNodes: zookeeper
+          defaultZkPort: 2182
+          brokers: kafka
+          defaultBrokerPort: 9093

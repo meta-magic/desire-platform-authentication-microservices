@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.desire3d.SystemEnviroment;
 import com.desire3d.auth.domainservice.LoginDomainService;
 import com.desire3d.auth.dto.AuthenticateResponse;
 import com.desire3d.auth.dto.LoginResponseDto;
@@ -64,8 +65,7 @@ public class AuthQueryServiceImpl implements AuthQueryService {
 
 	private Logger LOGGER = LoggerFactory.getLogger(AuthQueryServiceImpl.class);
 
-//	@Value("${session.expiry}")
-	private Integer sessionexpiry = Integer.valueOf(System.getenv("SESSION_EXPIRY"));;
+	private Integer sessionexpiry = SystemEnviroment.getSessionexpiry();
 
 	@Override
 	public boolean validateLoginId(String loginId) throws Throwable {
