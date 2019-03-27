@@ -24,7 +24,7 @@ spring:
       kafka:
         binder:
           headers: tokenId
-          zkNodes: zookeeper
-          defaultZkPort: 2182
-          brokers: kafka
-          defaultBrokerPort: 9093
+          zkNodes: zkskafka
+          defaultZkPort: 6501
+          brokers: brkafka
+          defaultBrokerPort: 6101
