@@ -1,0 +1,64 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: auth-deploy
+  namespace: desire3d
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: auth
+      zone: prod
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        name: auth
+        version: "1.0.0"
+        release: stable
+        tier: fe
+        zone: prod
+        managed-by: m2
+    spec:
+      containers:
+        - name: auth-ctr
+          image: metamagicglobal/auth-k8
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 7011
+          env:
+          - name: TOKEN_KEY
+            valueFrom:
+              secretKeyRef: 
+                name: authsecret
+                key:  key
+          - name: TOKEN_VALIDITY
+            valueFrom:
+              secretKeyRef: 
+                name: authsecret
+                key: validity   
+          - name: SESSION_EXPIRY
+            valueFrom:
+              secretKeyRef: 
+                name: authsecret
+                key: expiry       
+          - name: AUTH_DB_CONNECTION_URL
+            valueFrom:
+              secretKeyRef: 
+                name: authpostgres
+                key: connectionURL
+          - name: AUTH_MS_DB_USER
+            valueFrom:
+              secretKeyRef: 
+                name: authpostgres
+                key: username
+          - name: AUTH_MS_DB_PASSWORD
+            valueFrom:
+              secretKeyRef: 
+                name: authpostgres
+                key: password                             
