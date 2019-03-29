@@ -1,4 +1,4 @@
-package com.desire3d.auth.controller;
+package com.desire3d;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,7 @@ import com.desire3d.auth.dto.VersionInfo;
 
 @RestController
 @RequestMapping(value = "/check")
-public class HealthController {
+public class HealthAPI {
 
 	@Autowired
 	private VersionInfo version;
